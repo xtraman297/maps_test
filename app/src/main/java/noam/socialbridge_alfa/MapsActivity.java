@@ -25,6 +25,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.android.gms.location
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
+
 public class MapsActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -171,6 +177,7 @@ public class MapsActivity extends FragmentActivity
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
+            System.out.println(" aa moshe: ??");
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
 //                    .newInstance(new GoogleMapOptions().zoomGesturesEnabled(false)).getMap();
                     .getMap();
@@ -222,6 +229,17 @@ public class MapsActivity extends FragmentActivity
             //here we should delete the older markers
             //This will happen for every change
             mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("MyPos2"));
+
+
+            Client client = ClientBuilder.newClient();
+            Response response = client.target("http://130.211.71.132")
+                    .path("/user/all")
+                    .request(MediaType.TEXT_PLAIN_TYPE)
+                    .get();
+
+            System.out.println("aa status: " + response.getStatus());
+            System.out.println("aaheaders: " + response.toString());
+            System.out.println("aa body:" + response.getEntity());
         }
 
         @Override
