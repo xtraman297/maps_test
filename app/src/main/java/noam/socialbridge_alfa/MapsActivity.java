@@ -2,18 +2,21 @@ package noam.socialbridge_alfa;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Build;
+import android.os.Handler;
 import android.os.StrictMode;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.Location;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,10 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,14 +35,14 @@ import org.json.JSONException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.android.gms.location
 
@@ -135,7 +134,7 @@ public class MapsActivity extends FragmentActivity
         //        .strokeColor(Color.RED)
         //        .fillColor(Color.argb(30,60,50,40)));
         //check_location();
-        //GET("http://130.211.71.132/user");
+        //GET("http://104.155.7.53/user");
     }
 
     @Override
@@ -195,7 +194,6 @@ public class MapsActivity extends FragmentActivity
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            System.out.println(" aa moshe: ??");
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
 //                    .newInstance(new GoogleMapOptions().zoomGesturesEnabled(false)).getMap();
                     .getMap();
@@ -245,7 +243,6 @@ public class MapsActivity extends FragmentActivity
         JSONArray all_users_from_get = new JSONArray();
         String user_name = "not_found_yet";
 
-
         @Override
         @TargetApi(Build.VERSION_CODES.GINGERBREAD)
         @SuppressLint("NewApi")
@@ -253,9 +250,9 @@ public class MapsActivity extends FragmentActivity
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             //here we should delete the older markers
-            //This will happen for every change
+            //This will happen for every change of GPS
             String user_email = "test21@gmail.com";
-            String my_url_get_post = "http://130.211.71.132/user";
+            String my_url_get_post = "http://104.155.7.53/user";
             int user_id = -1;
 
             user_name = FindMyUserName(all_users_from_get, user_email);
@@ -274,7 +271,7 @@ public class MapsActivity extends FragmentActivity
 
             SendPutUpdate(my_url_put, entity_for_put);
             all_users_from_get = GetRequest(my_url_get_post);
-        
+
             mMap.clear();
 
             AddMarkersFromJSON(all_users_from_get);
@@ -345,7 +342,10 @@ public class MapsActivity extends FragmentActivity
                 System.out.println(temp_in_for.getString("longitude"));
                 /*temp_users.latitude = temp_in_for.getDouble("latitude");
                 temp_users.longitude = temp_in_for.getDouble("longitude");*/
-                mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title(temp_name  ));
+                //Marker test = mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title(temp_name  ));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title("one_test").icon(BitmapDescriptorFactory.fromResource(R.drawable.usersample)));
+                //LatLng test_lat = new LatLng(temp_in_for.getDouble("latitude") + 10, temp_in_for.getDouble("longitude") + 10);
+                //animateMarker(test, test_lat, false);
             } catch (JSONException e) {
                 e.printStackTrace();
             }}
@@ -397,6 +397,87 @@ public class MapsActivity extends FragmentActivity
                 e.printStackTrace();
             }
         return "not_found_yet";
+    }
+    public void animateMarker(final Marker marker, final LatLng toPosition,
+                              final boolean hideMarker) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = mMap.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                }
+            }
+        });
+    }
+    public void CheckForUpdates(){
+        System.out.println("Check Updates from server compared to local configs");
+    }
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    @SuppressLint("NewApi")
+    public void thread_runner()
+    {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        mMap.clear();
+        new Thread(new Runnable() {
+            public void run() {
+                String user_email = "test21@gmail.com";
+                JSONArray all_users_from_get = new JSONArray();
+                String user_name = "not_found_yet";
+                user_name = FindMyUserName(all_users_from_get, user_email);
+                int user_id = -1;
+                String my_url_get_post = "http://104.155.7.53/user";
+                int fail_count = 0;
+                String entity_format_put = String.format("{\"user\":{\"name\":\"%s\",\"location_attributes\":{\"latitude\":%f,\"longitude\":%f}}}", user_name, getDeviceLocation().latitude, getDeviceLocation().longitude);
+                StringEntity entity_for_put = null;
+                user_id = FindMyID(all_users_from_get, user_email);
+                String my_url_put = String.format("%s/%d", my_url_get_post, user_id);
+                try {
+                    entity_for_put = new StringEntity(entity_format_put);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                while (true) {
+                    SendPutUpdate(my_url_put, entity_for_put);
+                    CheckForUpdates();
+                    try {
+                        if (fail_count >= 5) {
+                            all_users_from_get = GetRequest(my_url_get_post);
+                            mMap.clear();
+                            AddMarkersFromJSON(all_users_from_get);
+                        }
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
 }
