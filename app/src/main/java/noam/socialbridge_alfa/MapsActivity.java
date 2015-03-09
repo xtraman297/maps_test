@@ -23,6 +23,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Hashtable;
 //import com.google.android.gms.location
 
 public class MapsActivity extends FragmentActivity
@@ -37,6 +39,9 @@ public class MapsActivity extends FragmentActivity
     private CameraPosition cuMyInitPos;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient clGoogleClient;
+
+    private Hashtable<String, MapObject> moObjects;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
