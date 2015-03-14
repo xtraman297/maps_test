@@ -2,8 +2,8 @@ package noam.socialbridge_alfa;
 
 import android.support.v4.app.FragmentActivity;
 
-//import com.pubnub.api.*;
-//import org.json.*;
+import com.pubnub.api.*;
+import org.json.*;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -19,7 +19,7 @@ public abstract class MapObject extends FragmentActivity implements Runnable {
     // User protected members
     protected String strUserName;
     protected Marker markUserMarker;
-//    protected Pubnub pubStreamer;
+    protected Pubnub pubStreamer;
 
     protected Thread thrThread;
 
