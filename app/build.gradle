@@ -30,4 +30,6 @@ dependencies {
     //compile file('lib/jersey-container-servlet.jar')
     //compile file('lib/jersey-container-servlet-core.jar')
     //compile file('lib/jersey-server.jar')
+    compile files('libs/Pubnub-Android-3.7.2.jar')
+    compile files('libs/bcprov-jdk15on-1.47.jar')
 }

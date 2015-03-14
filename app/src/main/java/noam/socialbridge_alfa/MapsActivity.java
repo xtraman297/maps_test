@@ -57,11 +57,10 @@ public class MapsActivity extends FragmentActivity
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     // Bool to track whether the app is already resolving an error
     private boolean mResolvingError = false;
-    private CameraPosition cuMyInitPos;
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private GoogleApiClient clGoogleClient;
+    public static GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private static GoogleApiClient clGoogleClient;
 
-    private Hashtable<String, MapObject> moObjects;
+    private Hashtable<String, MapObject> moObjects = new Hashtable<>();
 
 
     @Override
@@ -76,6 +75,8 @@ public class MapsActivity extends FragmentActivity
                 .addOnConnectionFailedListener(this)
                 .build();
         setUpMapIfNeeded();
+
+        setUpMapObjects();
     }
 
     @Override
@@ -84,13 +85,13 @@ public class MapsActivity extends FragmentActivity
 
         // Check for resolution when there are connection error
         if (!this.mResolvingError) {
-            this.clGoogleClient.connect();
+            MapsActivity.clGoogleClient.connect();
         }
     }
 
     @Override
     protected void onStop() {
-        this.clGoogleClient.disconnect();
+        MapsActivity.clGoogleClient.disconnect();
         super.onStop();
     }
 
@@ -102,8 +103,8 @@ public class MapsActivity extends FragmentActivity
 
             if (resultCode == RESULT_OK) {
                 // Avoid when the app is connecting
-                if (!this.clGoogleClient.isConnecting() &&
-                        !this.clGoogleClient.isConnected()) {
+                if (!MapsActivity.clGoogleClient.isConnecting() &&
+                        !MapsActivity.clGoogleClient.isConnected()) {
                     clGoogleClient.connect();
                 }
             }
@@ -125,14 +126,18 @@ public class MapsActivity extends FragmentActivity
                 //.icon(BitmapDescriptorFactory.fromResource(R.drawable.noam)));
 
         //mMap.addMarker(new MarkerOptions().position(Moshe_Test).title("Fuck"));
-        this.cuMyInitPos = new CameraPosition.Builder().target(getDeviceLocation())
+        CameraPosition cuMyInitPos = new CameraPosition.Builder().target(getDeviceLocation())
                 .zoom(15.5f)
                 .build();
-        this.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyInitPos));
+        MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyInitPos));
 
         //this creates the location manager and listener
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, locationListener);
+//        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, locationListener);
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                  5,
+                                  5,
+                                  (UserMapObject.getUserObject()));
         //mMap.addCircle(new CircleOptions()
         //        .center(getDeviceLocation())
         //        .radius(4)
@@ -155,9 +160,7 @@ public class MapsActivity extends FragmentActivity
         // More about this in the next section.
 
         // Kick out if there is resolution currently going
-        if (this.mResolvingError) {
-            return;
-        } else if (result.hasResolution()) {
+       if (result.hasResolution()) {
             try {
                 this.mResolvingError = true;
                 result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
@@ -165,7 +168,7 @@ public class MapsActivity extends FragmentActivity
             // This may be with errors
             catch (IntentSender.SendIntentException exception) {
                 // Try again to connect
-                this.clGoogleClient.connect();
+                MapsActivity.clGoogleClient.connect();
             }
         }
         // Resolution failed
@@ -184,7 +187,26 @@ public class MapsActivity extends FragmentActivity
      * Sets, and puts all map objects that are given from the sever
      */
     private void setUpMapObjects() {
+        moObjects.clear();
+        JSONArray jsonAllUsers = SocialBridgeActionsAPI.GetRequest("user", this);
 
+        // Iterate over all the users from the server and add them to the hash table
+        for (int nUser = 0; nUser < jsonAllUsers.length(); nUser++) {
+            try {
+                JSONObject joCurr = ((JSONObject)jsonAllUsers.get(nUser));
+
+                moObjects.put(joCurr.get("name").toString(),
+                              new PersonMapObject(joCurr.get("email").toString(),
+                                                  new LatLng((double)((JSONObject)joCurr
+                                                                .get("location")).get("latitude"),
+                                                             (double)((JSONObject)joCurr
+                                                                .get("location")).get("longitude"))));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        moObjects.put("me", UserMapObject.getUserObject());
     }
 
     /**
@@ -240,15 +262,22 @@ public class MapsActivity extends FragmentActivity
      */
     private void setUpMap() {
         // Act only if connected to Maps and location API
-        if (this.clGoogleClient.isConnected()) {
+        if (MapsActivity.clGoogleClient.isConnected()) {
             //mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("My1Pos"));
         }
     }
 
-    private LatLng getDeviceLocation() {
-        return new LatLng(
-                (LocationServices.FusedLocationApi.getLastLocation(this.clGoogleClient)).getLatitude(),
-                (LocationServices.FusedLocationApi.getLastLocation(this.clGoogleClient)).getLongitude());
+    public static LatLng getDeviceLocation() {
+        Location locCurrentLocation = (LocationServices
+                                        .FusedLocationApi
+                                        .getLastLocation(MapsActivity.clGoogleClient));
+        if(locCurrentLocation != null) {
+            return new LatLng(locCurrentLocation.getLatitude(), locCurrentLocation.getLongitude());
+        }
+        else {
+            return new LatLng(0,0);
+        }
+        //return new LatLng(10.0,20.0);
     }
 
     public final LocationListener locationListener = new LocationListener() {
@@ -282,11 +311,11 @@ public class MapsActivity extends FragmentActivity
             }
 
             SendPutUpdate(my_url_put, entity_for_put);
-            all_users_from_get = GetRequest(my_url_get_post);
+            //all_users_from_get = SocialBridgeActionsAPI.GetRequest("user",(Context)this);
 
             mMap.clear();
 
-            AddMarkersFromJSON(all_users_from_get);
+            //AddMarkersFromJSON(all_users_from_get);
             //mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title(user_name));
         }
 
