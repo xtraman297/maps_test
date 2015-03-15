@@ -1,9 +1,10 @@
 package noam.socialbridge_alfa;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.support.v4.app.FragmentActivity;
+import android.os.StrictMode;
 
 import com.pubnub.api.*;
 import org.json.*;
@@ -26,7 +27,7 @@ public abstract class MapObject extends Callback implements Runnable {
     protected Marker markUserMarker;
     protected Pubnub pubStreamer;
     protected Context connectedContext;
-
+    protected LatLng locUpdatedLocation;
     protected LocationThread thrThread;
 
     public MapObject(String strUserName, LatLng ltlngUserLocation, Context connectedContext){
@@ -46,19 +47,10 @@ public abstract class MapObject extends Callback implements Runnable {
 
             try {
                 this.pubStreamer.subscribe(this.strUserEmail, this);
-//                this.pubStreamer.publish("test",
-//                        new JSONObject(String.format("{\"latitude\":%f,\"longitude\":%f}", 10.0, 10.0)),
-//                        this);
             }
             catch (PubnubException pe) {
                 pe.printStackTrace();
             }
-//                catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            catch(JSONException je) {
-//                je.printStackTrace();
-//            }
 
         }
         catch (PackageManager.NameNotFoundException exception) {
@@ -84,11 +76,20 @@ public abstract class MapObject extends Callback implements Runnable {
         System.out.println(error.toString());
     }
 
+    /**
+     *
+     * @param newLocation
+     */
     public void updatePosition(LatLng newLocation) {
-        // Only update position if they are different
-        if ((newLocation.longitude != this.markUserMarker.getPosition().longitude) ||
-                (newLocation.latitude != this.markUserMarker.getPosition().latitude)) {
-            this.markUserMarker.setPosition(newLocation);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+//        // Only update position if they are different
+//        if ((newLocation.longitude != this.markUserMarker.getPosition().longitude) ||
+//                (newLocation.latitude != this.markUserMarker.getPosition().latitude)) {
+//            this.markUserMarker.setPosition(newLocation);
+//        }
+        this.locUpdatedLocation = newLocation;
+        ((Activity)this.connectedContext).runOnUiThread(this);
     }
 }

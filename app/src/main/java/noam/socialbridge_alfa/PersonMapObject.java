@@ -17,7 +17,7 @@ import org.json.JSONObject;
 public class PersonMapObject extends MapObject {
     public PersonMapObject(String strUserName, LatLng ltlngUserLocation, Context context) {
         super(strUserName, ltlngUserLocation, context);
-        this.thrThread.start();
+        //this.thrThread.start();
         try {
             this.pubStreamer.subscribe("positionChange", this);
         }
@@ -29,7 +29,11 @@ public class PersonMapObject extends MapObject {
 
     @Override
     public void run() {
-        //this.markUserMarker.setPosition(((LocationThread)Thread.currentThread()).getLngLocation());
+        // Only update position if they are different
+        if ((this.locUpdatedLocation.longitude != this.markUserMarker.getPosition().longitude) ||
+                (this.locUpdatedLocation.latitude != this.markUserMarker.getPosition().latitude)) {
+            this.markUserMarker.setPosition(this.locUpdatedLocation);
+        }
     }
 
     @Override
@@ -43,14 +47,14 @@ public class PersonMapObject extends MapObject {
         // Cast the response
         JSONObject joResponse = (JSONObject) message;
 
-//        try {
-//            this.updatePosition(new LatLng(
-//                    (Integer)((JSONObject)joResponse.get("location_attributes")).get("latitude"),
-//                    (Integer)((JSONObject)joResponse.get("location_attributes")).get("longitude")));
-//        }
-//        catch (JSONException je) {
-//
-//        }
+        try {
+            this.updatePosition(new LatLng(
+             (Double.parseDouble(((JSONObject)joResponse.get("location_attributes")).get("latitude").toString())),
+             (Double.parseDouble(((JSONObject)joResponse.get("location_attributes")).get("longitude").toString()))));
+        }
+        catch (JSONException je) {
+
+        }
     }
 
     @Override
