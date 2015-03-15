@@ -137,7 +137,7 @@ public class MapsActivity extends FragmentActivity
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                   5,
                                   5,
-                                  (UserMapObject.getUserObject()));
+                                  (UserMapObject.getUserObject(this)));
         //mMap.addCircle(new CircleOptions()
         //        .center(getDeviceLocation())
         //        .radius(4)
@@ -200,13 +200,14 @@ public class MapsActivity extends FragmentActivity
                                                   new LatLng((double)((JSONObject)joCurr
                                                                 .get("location")).get("latitude"),
                                                              (double)((JSONObject)joCurr
-                                                                .get("location")).get("longitude"))));
+                                                                .get("location")).get("longitude")),
+                              this));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        moObjects.put("me", UserMapObject.getUserObject());
+        moObjects.put("me", UserMapObject.getUserObject(this));
     }
 
     /**

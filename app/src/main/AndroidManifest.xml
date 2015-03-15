@@ -21,6 +21,12 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
+            android:name="pubnubAPI_publish"
+            android:value="pub-c-033a7758-3b73-4810-9c1e-8cadb1f5d83a" />
+        <meta-data
+            android:name="pubnubAPI_subscribe"
+            android:value="sub-c-c96a15ae-b3a5-11e4-8ec7-0619f8945a4f" />
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data

@@ -1,7 +1,11 @@
 package noam.socialbridge_alfa;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.StrictMode;
+import android.support.v4.app.FragmentActivity;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,12 +18,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Created by MrJellyB on 13/03/2015.
  * a Static class that gives services for contacting SocialBridge API
  */
-public final class SocialBridgeActionsAPI {
+public final class SocialBridgeActionsAPI extends FragmentActivity {
+    private static SocialBridgeActionsAPI instance;
 
     public static JSONArray GetRequest(String strAction, Context resources) {
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
@@ -69,9 +75,46 @@ public final class SocialBridgeActionsAPI {
             // handle response here...
         }catch (Exception ex) {
             // handle exception here
+            ex.printStackTrace();
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
     }
 
+    public static void updateUserLocation(String strUserEmail, LatLng ltnLocation, Context connectedContext) {
+        strUserEmail = Uri.encode(strUserEmail.substring(0, strUserEmail.lastIndexOf('.'))) + "/" +
+                        strUserEmail.substring(strUserEmail.lastIndexOf('.') + 1);
+
+        String strEntityFormat = String.format(
+                "{\"user\"" +
+                        ":{\"name\":\"%s\"," +
+                        "\"location_attributes\":" +
+                        "{\"latitude\":%f," +
+                        "\"longitude\":%f}}}",
+                strUserEmail,
+                ltnLocation.latitude,
+                ltnLocation.longitude);
+
+        StringEntity seToSend;
+
+        try {
+            seToSend = new StringEntity(strEntityFormat);
+
+            // Send the new position to the server
+            SocialBridgeActionsAPI.SendPutUpdate("user/update/" + strUserEmail,
+                    seToSend,
+                    connectedContext);
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static SocialBridgeActionsAPI getInstance() {
+        if(SocialBridgeActionsAPI.instance == null) {
+            SocialBridgeActionsAPI.instance = new SocialBridgeActionsAPI();
+        }
+
+        return (SocialBridgeActionsAPI.instance);
+    }
 }
