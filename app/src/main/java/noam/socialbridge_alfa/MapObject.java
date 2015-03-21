@@ -30,6 +30,16 @@ public abstract class MapObject extends Callback implements Runnable {
     protected LatLng locUpdatedLocation;
     protected LocationThread thrThread;
 
+    /**
+     * The default constructor for: MapObject{@link noam.socialbridge_alfa.MapObject}
+     * {@link noam.socialbridge_alfa.PersonMapObject} and
+     * {@link noam.socialbridge_alfa.UserMapObject} classes.
+     * This is the base constructor, all other classes object are being created through here.
+     * @param strUserName       - The User EMAIL
+     * @param ltlngUserLocation - The initial location of the user
+     * @param connectedContext  - The referenced context object. This parameter contains mostly
+     *                            The activity which is made of.
+     */
     public MapObject(String strUserName, LatLng ltlngUserLocation, Context connectedContext){
         this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
         this.strUserEmail = strUserName;
@@ -77,8 +87,9 @@ public abstract class MapObject extends Callback implements Runnable {
     }
 
     /**
-     *
-     * @param newLocation
+     * Method for updating the user's position on the main map.
+     * It sets the user's marker position by calling the main thread with {@code #runOnUiThread}
+     * @param newLocation  The new location to update.
      */
     public void updatePosition(LatLng newLocation) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();

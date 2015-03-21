@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
  * a Static class that gives services for contacting SocialBridge API
  */
 public final class SocialBridgeActionsAPI extends FragmentActivity {
-    private static SocialBridgeActionsAPI instance;
 
     public static JSONArray GetRequest(String strAction, Context resources) {
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
@@ -56,6 +55,15 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         return json;
     }
 
+    /**
+     * The main method for making API requests to the server.
+     * @param strAction The name of the action according to the server's available actions
+     *                  ('user', 'user/{id}').
+     *                  @see <a href="http://google.com">http://docs.socialbridge.apiary.io/</a>
+     * @param params    The additional parameters to use with the request
+     * @param resources Activity or other kind of context is needed for accessing resources
+     *                  within the application ({@link R}
+     */
     public static void SendPutUpdate(String strAction, StringEntity params, Context resources){
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
 
@@ -108,13 +116,5 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-    }
-
-    public static SocialBridgeActionsAPI getInstance() {
-        if(SocialBridgeActionsAPI.instance == null) {
-            SocialBridgeActionsAPI.instance = new SocialBridgeActionsAPI();
-        }
-
-        return (SocialBridgeActionsAPI.instance);
     }
 }

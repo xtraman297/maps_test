@@ -27,6 +27,9 @@ public class PersonMapObject extends MapObject {
         }
     }
 
+    /**
+     * This method handles all the pubnub publish request AS THE MAIN THREAD !
+     */
     @Override
     public void run() {
         // Only update position if they are different
@@ -36,12 +39,23 @@ public class PersonMapObject extends MapObject {
         }
     }
 
+    /**
+     * Method to test callback form pubnub
+     * @param channel - channel name
+     * @param message - the content of the message
+     */
     @Override
     public void connectCallback(String channel, Object message) {
         //super.connectCallback(channel, message);
         int x =1;
     }
 
+    /**
+     * This method is activated when the callback from a pubnub publish is successful.
+     * It suppose to update the user's position (calling the updatePosition in the super class).
+     * @param channel - channel name
+     * @param message - the content of the message
+     */
     @Override
      public void successCallback(String channel, Object message) {
         // Cast the response
@@ -57,6 +71,11 @@ public class PersonMapObject extends MapObject {
         }
     }
 
+    /**
+     * This method is called only when there are publishing errors
+     * @param channel - channel name
+     * @param error - the content of the error message
+     */
     @Override
     public void errorCallback(String channel, PubnubError error) {
         System.out.println("SUBSCRIBE : ERROR on channel " + channel

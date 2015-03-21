@@ -13,6 +13,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 
@@ -37,7 +39,7 @@ public class UserMapObject extends MapObject implements LocationListener {
 
     @Override
     public void run() {
-        //JSONArray jsonAllUsers = SocialBridgeActionsAPI.GetRequest("user", this);
+        // Only update position if they are different
     }
 
     @Override
@@ -54,13 +56,29 @@ public class UserMapObject extends MapObject implements LocationListener {
                 .zoom(15.5f)
                 .build();
         MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyPos));
+        this.markUserMarker.setPosition(newLocation);
     }
 
     @Override
     public void onLocationChanged(final Location location) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        // Update my position
         updatePosition(new LatLng(location.getLatitude(),location.getLongitude()));
+
+        try {
+            // Publish new location to other users
+            JSONObject joNewLoc = new JSONObject(String.format("{location_attributes:" +
+                                                                    "{longitude:%d, latitude:%d}}",
+                                                location.getLongitude(),
+                                                location.getLatitude()));
+            this.pubStreamer.publish(this.strUserEmail, joNewLoc, this);
+        }
+        catch (JSONException je) {
+            je.printStackTrace();
+        }
+
     }
 
     @Override
