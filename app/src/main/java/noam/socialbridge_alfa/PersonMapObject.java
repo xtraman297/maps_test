@@ -15,8 +15,8 @@ import org.json.JSONObject;
  * For each person there will be a thread (its inherited from class {@link MapObject})
  */
 public class PersonMapObject extends MapObject {
-    public PersonMapObject(String strUserName, LatLng ltlngUserLocation, Context context) {
-        super(strUserName, ltlngUserLocation, context);
+    public PersonMapObject(String strUserName, LatLng latlngUserLocation, Context context) {
+        super(strUserName, latlngUserLocation, context);
         //this.thrThread.start();
         try {
             this.pubStreamer.subscribe("positionChange", this);

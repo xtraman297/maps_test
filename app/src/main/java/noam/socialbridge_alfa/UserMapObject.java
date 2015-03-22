@@ -66,11 +66,11 @@ public class UserMapObject extends MapObject implements LocationListener {
 
         // Update my position
         updatePosition(new LatLng(location.getLatitude(),location.getLongitude()));
-
+        System.out.println(location.getLatitude());
         try {
             // Publish new location to other users
             JSONObject joNewLoc = new JSONObject(String.format("{location_attributes:" +
-                                                                    "{longitude:%d, latitude:%d}}",
+                                                                    "{longitude:%f, latitude:%f}}",
                                                 location.getLongitude(),
                                                 location.getLatitude()));
             this.pubStreamer.publish(this.strUserEmail, joNewLoc, this);

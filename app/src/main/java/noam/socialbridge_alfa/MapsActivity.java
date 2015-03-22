@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
@@ -385,7 +386,7 @@ public class MapsActivity extends FragmentActivity
                 /*temp_users.latitude = temp_in_for.getDouble("latitude");
                 temp_users.longitude = temp_in_for.getDouble("longitude");*/
                 //Marker test = mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title(temp_name  ));
-                mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title("one_test").icon(BitmapDescriptorFactory.fromResource(R.drawable.usersample)));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(temp_in_for.getDouble("latitude"), temp_in_for.getDouble("longitude"))).title("one_test").icon(BitmapDescriptorFactory.fromBitmap(ReturnMarkerWithImage.ReturnBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.noam),BitmapFactory.decodeResource(getResources(), R.drawable.usersample)))));
                 //LatLng test_lat = new LatLng(temp_in_for.getDouble("latitude") + 10, temp_in_for.getDouble("longitude") + 10);
                 //animateMarker(test, test_lat, false);
             } catch (JSONException e) {
