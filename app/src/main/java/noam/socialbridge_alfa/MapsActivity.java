@@ -441,7 +441,7 @@ public class MapsActivity extends FragmentActivity
             }
         return "not_found_yet";
     }
-    public void animateMarker(final Marker marker, final LatLng toPosition,
+    public static void animateMarker(final Marker marker, final LatLng toPosition,
                               final boolean hideMarker) {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();

@@ -55,8 +55,10 @@ public class UserMapObject extends MapObject implements LocationListener {
                 .target(newLocation)
                 .zoom(15.5f)
                 .build();
-        MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyPos));
-        this.markUserMarker.setPosition(newLocation);
+        //MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyPos));
+        MapsActivity.animateMarker(this.markUserMarker, newLocation, false);
+
+        //this.markUserMarker.setPosition(newLocation);
     }
 
     @Override
