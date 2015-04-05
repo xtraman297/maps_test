@@ -512,7 +512,7 @@ public class MapsActivity extends FragmentActivity
                         if (fail_count >= 5) {
                             all_users_from_get = GetRequest(my_url_get_post);
                             mMap.clear();
-                            AddMarkersFromJSON(all_users_from_get);
+                            //AddMarkersFromJSON(all_users_from_get);
                         }
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {

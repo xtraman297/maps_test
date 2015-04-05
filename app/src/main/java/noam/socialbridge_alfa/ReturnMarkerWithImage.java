@@ -19,8 +19,8 @@ public class ReturnMarkerWithImage {
 
     public static Bitmap ReturnBitmap(Bitmap UserPicture, Bitmap backgroundMarkerPic){
         Bitmap mutableBitmap = UserPicture.copy(Bitmap.Config.ARGB_8888, true);
-        mutableBitmap = Bitmap.createScaledBitmap(mutableBitmap, 300, 300, true);
-        backgroundMarkerPic = Bitmap.createScaledBitmap(backgroundMarkerPic, 500, 500, true);
+        mutableBitmap = Bitmap.createScaledBitmap(mutableBitmap, 120, 120, true);
+        backgroundMarkerPic = Bitmap.createScaledBitmap(backgroundMarkerPic, 200, 200, true);
         mutableBitmap = getCroppedBitmap(mutableBitmap);
         mutableBitmap = overlay(backgroundMarkerPic, mutableBitmap);
         return mutableBitmap;
@@ -52,7 +52,7 @@ public class ReturnMarkerWithImage {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
         Canvas canvas = new Canvas(bmOverlay);
         canvas.drawBitmap(bmp1, new Matrix(), null);
-        canvas.drawBitmap(bmp2, 96, 46, null);
+        canvas.drawBitmap(bmp2, 37, 19, null);
         return bmOverlay;
     }
 

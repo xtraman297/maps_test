@@ -4,8 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.StrictMode;
+import android.widget.ImageView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.pubnub.api.*;
 import org.json.*;
 
@@ -70,13 +76,30 @@ public abstract class MapObject extends Callback implements Runnable {
 
         // Add the marker to the main map if its not null
         if (MapsActivity.mMap != null) {
+            //MapsActivity.mMap.setOnMapClickListener(this.markUserMarker);
+
+            Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.noam);
+            Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.usersample);
+            Bitmap myImage = ReturnMarkerWithImage.ReturnBitmap(userImage, markerImage);
             this.markUserMarker = MapsActivity.mMap
-                    .addMarker(new MarkerOptions().position(ltlngUserLocation));
+                    .addMarker(new MarkerOptions().position(ltlngUserLocation).title(strUserName).icon(BitmapDescriptorFactory.fromBitmap(myImage)));
+            MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick( Marker marker ) {
+                    System.out.println("aaaaaaaaaaa");
+                    return true;
+
+                }
+            });
+            //this.markUserMarker = MapsActivity.mMap
+            //        .addMarker(new MarkerOptions().position(ltlngUserLocation).title(strUserName));
         }
     }
 
     @Override
     public abstract void run();
+
+
 
     public void successCallback(String channel, Object response) {
         System.out.println(response.toString());
