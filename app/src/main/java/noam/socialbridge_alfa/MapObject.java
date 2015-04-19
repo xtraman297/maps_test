@@ -1,12 +1,16 @@
 package noam.socialbridge_alfa;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.StrictMode;
+import android.text.Editable;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -46,10 +50,35 @@ public abstract class MapObject extends Callback implements Runnable {
      * @param connectedContext  - The referenced context object. This parameter contains mostly
      *                            The activity which is made of.
      */
+
+
+
     public MapObject(String strUserName, LatLng ltlngUserLocation, Context connectedContext){
         this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
         this.strUserEmail = strUserName;
         this.connectedContext = connectedContext;
+        final AlertDialog.Builder alert = new AlertDialog.Builder(connectedContext);
+
+        alert.setTitle("Title");
+        alert.setMessage("Message");
+
+// Set an EditText view to get user input
+        final EditText input = new EditText(connectedContext);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Editable value = input.getText();
+                // Do something with value!
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
 
         // Initialize pubnub dataMember with publish and subscribe keys
         try {
@@ -86,7 +115,9 @@ public abstract class MapObject extends Callback implements Runnable {
             MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick( Marker marker ) {
+                    //Noamisking
                     System.out.println("aaaaaaaaaaa");
+                    alert.show();
                     return true;
 
                 }
