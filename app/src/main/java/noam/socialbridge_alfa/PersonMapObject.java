@@ -61,6 +61,10 @@ public class PersonMapObject extends MapObject {
         // Cast the response
         JSONObject joResponse = (JSONObject) message;
 
+        /**
+         * TODO: Add here also callback for messages (what came from pubnub subscribe)
+         */
+
         try {
             this.updatePosition(new LatLng(
              (Double.parseDouble(((JSONObject)joResponse.get("location_attributes")).get("latitude").toString())),

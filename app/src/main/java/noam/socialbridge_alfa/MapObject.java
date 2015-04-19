@@ -69,7 +69,11 @@ public abstract class MapObject extends Callback implements Runnable {
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Editable value = input.getText();
-                // Do something with value!
+                /**
+                 * TODO: Do something with value! call pubnub publish and
+                 * TODO: REST (Server call) to that player?
+                  */
+
             }
         });
 
@@ -118,6 +122,8 @@ public abstract class MapObject extends Callback implements Runnable {
                     //Noamisking
                     System.out.println("aaaaaaaaaaa");
                     alert.show();
+                    // TODO: Interaction Menu should be here?
+
                     return true;
 
                 }
