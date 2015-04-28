@@ -53,35 +53,40 @@ public abstract class MapObject extends Callback implements Runnable {
 
 
 
-    public MapObject(String strUserName, LatLng ltlngUserLocation, Context connectedContext){
-        this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
-        this.strUserEmail = strUserName;
-        this.connectedContext = connectedContext;
-        final AlertDialog.Builder alert = new AlertDialog.Builder(connectedContext);
-
+    public void build_and_run_alert(){
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this.connectedContext);
+        final EditText input = new EditText(connectedContext);
         alert.setTitle("Title");
         alert.setMessage("Message");
-
-// Set an EditText view to get user input
-        final EditText input = new EditText(connectedContext);
         alert.setView(input);
-
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+                // Why do we crash here?
+                System.out.println("I shouldn't crash here but i do.. ?!");
+            }
+        });
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Editable value = input.getText();
                 /**
                  * TODO: Do something with value! call pubnub publish and
                  * TODO: REST (Server call) to that player?
-                  */
+                 */
 
             }
         });
+        alert.show();
+    }
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Canceled.
-            }
-        });
+    public MapObject(String strUserName, LatLng ltlngUserLocation, final Context connectedContext){
+        this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
+        this.strUserEmail = strUserName;
+        this.connectedContext = connectedContext;
+
+
+// Set an EditText view to get user input
+
 
 
         // Initialize pubnub dataMember with publish and subscribe keys
@@ -121,9 +126,9 @@ public abstract class MapObject extends Callback implements Runnable {
                 public boolean onMarkerClick( Marker marker ) {
                     //Noamisking
                     System.out.println("aaaaaaaaaaa");
-                    alert.show();
-                    // TODO: Interaction Menu should be here?
+                    build_and_run_alert();
 
+                    // TODO: Interaction Menu should be here?
                     return true;
 
                 }
