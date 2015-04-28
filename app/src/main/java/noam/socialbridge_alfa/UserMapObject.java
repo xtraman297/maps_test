@@ -24,9 +24,11 @@ import java.io.UnsupportedEncodingException;
  */
 public class UserMapObject extends MapObject implements LocationListener {
     private static UserMapObject umoUser = null;
+    private AlertPubGet alertGet;
 
     private UserMapObject(Context connectedContext) {
-        super("test1@gmail.com", MapsActivity.getDeviceLocation(), connectedContext);
+        super("test4@gmail.com", MapsActivity.getDeviceLocation(), connectedContext);
+        this.alertGet = new AlertPubGet(this.connectedContext, this.strUserEmail + "-chat");
     }
 
     public static UserMapObject getUserObject(Context context) {

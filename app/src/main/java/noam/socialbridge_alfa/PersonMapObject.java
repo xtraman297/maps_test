@@ -2,7 +2,9 @@ package noam.socialbridge_alfa;
 
 import android.content.Context;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 
@@ -15,9 +17,11 @@ import org.json.JSONObject;
  * For each person there will be a thread (its inherited from class {@link MapObject})
  */
 public class PersonMapObject extends MapObject {
+    private AlertPubSend alertSend;
+
     public PersonMapObject(String strUserName, LatLng latlngUserLocation, Context context) {
         super(strUserName, latlngUserLocation, context);
-        //this.thrThread.start();
+
         try {
             this.pubStreamer.subscribe("positionChange", this);
         }
@@ -25,6 +29,8 @@ public class PersonMapObject extends MapObject {
             pe.printStackTrace();
             System.out.println(pe.getPubnubError().toString());
         }
+
+        this.alertSend = new AlertPubSend(context,this.strUserEmail + "-" + "chat", this.markUserMarker);
     }
 
     /**
@@ -61,10 +67,6 @@ public class PersonMapObject extends MapObject {
         // Cast the response
         JSONObject joResponse = (JSONObject) message;
 
-        /**
-         * TODO: Add here also callback for messages (what came from pubnub subscribe)
-         */
-
         try {
             this.updatePosition(new LatLng(
              (Double.parseDouble(((JSONObject)joResponse.get("location_attributes")).get("latitude").toString())),
@@ -85,4 +87,5 @@ public class PersonMapObject extends MapObject {
         System.out.println("SUBSCRIBE : ERROR on channel " + channel
                 + " : " + error.toString());
     }
+
 }

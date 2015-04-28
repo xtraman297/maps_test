@@ -45,49 +45,11 @@ public abstract class MapObject extends Callback implements Runnable {
      * {@link noam.socialbridge_alfa.PersonMapObject} and
      * {@link noam.socialbridge_alfa.UserMapObject} classes.
      * This is the base constructor, all other classes object are being created through here.
-     * @param strUserName       - The User EMAIL
-     * @param ltlngUserLocation - The initial location of the user
-     * @param connectedContext  - The referenced context object. This parameter contains mostly
-     *                            The activity which is made of.
      */
-
-
-
-    public void build_and_run_alert(){
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this.connectedContext);
-        final EditText input = new EditText(connectedContext);
-        alert.setTitle("Title");
-        alert.setMessage("Message");
-        alert.setView(input);
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Canceled.
-                // Why do we crash here?
-                System.out.println("I shouldn't crash here but i do.. ?!");
-            }
-        });
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                Editable value = input.getText();
-                /**
-                 * TODO: Do something with value! call pubnub publish and
-                 * TODO: REST (Server call) to that player?
-                 */
-
-            }
-        });
-        alert.show();
-    }
-
     public MapObject(String strUserName, LatLng ltlngUserLocation, final Context connectedContext){
         this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
         this.strUserEmail = strUserName;
         this.connectedContext = connectedContext;
-
-
-// Set an EditText view to get user input
-
-
 
         // Initialize pubnub dataMember with publish and subscribe keys
         try {
@@ -120,19 +82,20 @@ public abstract class MapObject extends Callback implements Runnable {
             Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.usersample);
             Bitmap myImage = ReturnMarkerWithImage.ReturnBitmap(userImage, markerImage);
             this.markUserMarker = MapsActivity.mMap
-                    .addMarker(new MarkerOptions().position(ltlngUserLocation).title(strUserName).icon(BitmapDescriptorFactory.fromBitmap(myImage)));
-            MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick( Marker marker ) {
-                    //Noamisking
-                    System.out.println("aaaaaaaaaaa");
-                    build_and_run_alert();
-
-                    // TODO: Interaction Menu should be here?
-                    return true;
-
-                }
-            });
+                    .addMarker(new MarkerOptions()
+                            .position(ltlngUserLocation)
+                            .title(strUserName)
+                            .icon(BitmapDescriptorFactory.fromBitmap(myImage)));
+//            MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
+//                @Override
+//                public boolean onMarkerClick( Marker marker ) {
+//                    //Noamisking
+//                    System.out.println("aaaaaaaaaaa");
+//                    //build_and_run_alert();
+//                    return true;
+//
+//                }
+//            });
             //this.markUserMarker = MapsActivity.mMap
             //        .addMarker(new MarkerOptions().position(ltlngUserLocation).title(strUserName));
         }
@@ -140,9 +103,6 @@ public abstract class MapObject extends Callback implements Runnable {
 
     @Override
     public abstract void run();
-
-
-
     public void successCallback(String channel, Object response) {
         System.out.println(response.toString());
     }
