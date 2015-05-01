@@ -32,6 +32,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         StrictMode.setThreadPolicy(policy);
         HttpClient client = new DefaultHttpClient();
         HttpGet request = new HttpGet(serverIP + strAction);
+        request.addHeader("Accept", "application/vnd.SB-API.v2+json");
         HttpResponse response;
         JSONArray json;
         json = null;
