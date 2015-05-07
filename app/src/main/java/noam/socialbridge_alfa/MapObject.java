@@ -81,11 +81,13 @@ public abstract class MapObject extends Callback implements Runnable {
             Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.noam);
             Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.usersample);
             Bitmap myImage = ReturnMarkerWithImage.ReturnBitmap(userImage, markerImage);
+            Bitmap titleImage = ReturnMarkerWithImage.drawTextToBitmap(connectedContext, myImage, strUserName);
             this.markUserMarker = MapsActivity.mMap
                     .addMarker(new MarkerOptions()
                             .position(ltlngUserLocation)
                             .title(strUserName)
-                            .icon(BitmapDescriptorFactory.fromBitmap(myImage)));
+                            .icon(BitmapDescriptorFactory.fromBitmap(titleImage)));
+            //this.markUserMarker.showInfoWindow();
 //            MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
 //                @Override
 //                public boolean onMarkerClick( Marker marker ) {
