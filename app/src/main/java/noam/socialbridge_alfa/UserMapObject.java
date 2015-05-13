@@ -26,14 +26,14 @@ public class UserMapObject extends MapObject implements LocationListener {
     private static UserMapObject umoUser = null;
     private AlertPubGet alertGet;
 
-    private UserMapObject(Context connectedContext) {
-        super("test4@gmail.com", MapsActivity.getDeviceLocation(), connectedContext);
+    private UserMapObject(Context connectedContext, String MyString) {
+        super(MyString, MapsActivity.getDeviceLocation(), connectedContext);
         this.alertGet = new AlertPubGet(this.connectedContext, this.strUserEmail + "-chat");
     }
 
-    public static UserMapObject getUserObject(Context context) {
+    public static UserMapObject getUserObject(Context context, String MyString) {
         if (UserMapObject.umoUser == null) {
-            UserMapObject.umoUser = new UserMapObject(context);
+            UserMapObject.umoUser = new UserMapObject(context, MyString);
         }
 
         return (UserMapObject.umoUser);

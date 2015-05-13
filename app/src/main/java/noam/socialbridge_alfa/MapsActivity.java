@@ -2,6 +2,9 @@ package noam.socialbridge_alfa;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.BitmapFactory;
@@ -18,6 +21,7 @@ import android.location.LocationManager;
 import android.location.Location;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +50,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 //import com.google.android.gms.location
 
@@ -62,13 +67,13 @@ public class MapsActivity extends FragmentActivity
     private static GoogleApiClient clGoogleClient;
 
     private Hashtable<String, MapObject> moObjects = new Hashtable<>();
-
+    String MyEmail = "test1@gmail.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        onCreateDialog();
         //ConnectToLocationServices();
         clGoogleClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -138,7 +143,7 @@ public class MapsActivity extends FragmentActivity
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                   5,
                                   5,
-                                  (UserMapObject.getUserObject(this)));
+                                  (UserMapObject.getUserObject(this, this.MyEmail)));
         //mMap.addCircle(new CircleOptions()
         //        .center(getDeviceLocation())
         //        .radius(4)
@@ -151,6 +156,55 @@ public class MapsActivity extends FragmentActivity
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+
+    public Dialog onCreateDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String[] users = {
+                "Moshe",
+                "Noam",
+                "Nadia",
+                "Daniel"
+        };
+        final String[] mymails = {
+                "test1@gmail.com",
+                "test2@gmail.com",
+                "test3@gmail.com",
+                "test4@gmail.com"
+        };
+        builder.setTitle("Pick a user")
+                .setItems(users, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        MyEmail = mymails[which];
+                    }
+                });
+        builder.show();
+        return builder.create();
+
+    }
+
+    private void addNew() {
+        //Invoerveld voor het invoeren van een nieuwe taak.
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Who are you");
+        //alert.setMessage("Which task has to be done?") ;
+
+        final EditText input = new EditText(this);      input.setEnabled(true);
+        alert.setView(input);
+
+        alert.setPositiveButton("Opslaan", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String description = input.getText().toString();
+            }
+        });
+
+        alert.setNegativeButton("Annuleer", null);
+
+        alert.show();
     }
 
     @Override
@@ -208,7 +262,7 @@ public class MapsActivity extends FragmentActivity
             }
         }
 
-        moObjects.put("me", UserMapObject.getUserObject(this));
+        moObjects.put("me", UserMapObject.getUserObject(this, this.MyEmail));
     }
 
     /**
@@ -294,6 +348,7 @@ public class MapsActivity extends FragmentActivity
             StrictMode.setThreadPolicy(policy);
             //here we should delete the older markers
             //This will happen for every change of GPS
+
             String user_email = "test21@gmail.com";
             String my_url_get_post = "http://84.228.169.233/user";
             int user_id = -1;

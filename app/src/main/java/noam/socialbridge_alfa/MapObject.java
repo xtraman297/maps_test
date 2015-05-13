@@ -77,8 +77,20 @@ public abstract class MapObject extends Callback implements Runnable {
         // Add the marker to the main map if its not null
         if (MapsActivity.mMap != null) {
             //MapsActivity.mMap.setOnMapClickListener(this.markUserMarker);
-
-            Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.noam);
+            int my_image_id = R.drawable.usersample;
+            if (strUserName.equals("test1@gmail.com")){
+                my_image_id = R.drawable.moshe;
+            }
+            if (strUserName.equals("test2@gmail.com")){
+                my_image_id = R.drawable.noam;
+            }
+            if (strUserName.equals("test3@gmail.com")){
+                my_image_id = R.drawable.nadia;
+            }
+            if (strUserName.equals("test4@gmail.com")){
+                my_image_id = R.drawable.daniel;
+            }
+            Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(), my_image_id);
             Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.usersample);
             Bitmap myImage = ReturnMarkerWithImage.ReturnBitmap(userImage, markerImage);
             Bitmap titleImage = ReturnMarkerWithImage.drawTextToBitmap(connectedContext, myImage, strUserName);
