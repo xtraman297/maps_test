@@ -295,7 +295,7 @@ public class MapsActivity extends FragmentActivity
             //here we should delete the older markers
             //This will happen for every change of GPS
             String user_email = "test21@gmail.com";
-            String my_url_get_post = "http://104.155.7.53/user";
+            String my_url_get_post = "http://84.228.169.233/user";
             int user_id = -1;
 
             user_name = FindMyUserName(all_users_from_get, user_email);

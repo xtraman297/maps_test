@@ -3,6 +3,6 @@
 
     <string name="app_name">SocialBridge-Alfa</string>
     <string name="title_activity_maps">Map</string>
-    <string name="ServerIP">http://84.228.126.90/</string>
+    <string name="ServerIP">http://84.228.169.233/</string>
 
 </resources>

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.Editable;
@@ -14,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
+import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -106,7 +107,8 @@ public class AlertPubSend extends AlertPub
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                build_and_run_alert();
+                showChatPage();
+                //build_and_run_alert();
             }
         });
 
@@ -139,5 +141,10 @@ public class AlertPubSend extends AlertPub
         });
 
         dialog.show();
+    }
+    public void showChatPage(){
+        Intent intent = new Intent();
+        intent.setClass(this.connectedContext, ChatActivity.class);
+        this.connectedContext.startActivity(intent);
     }
 }

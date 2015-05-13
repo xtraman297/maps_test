@@ -42,5 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ChatActivity"
+            android:label="test">
+        </activity>
     </application>
 </manifest>
