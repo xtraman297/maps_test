@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.app.Activity;
@@ -32,6 +33,7 @@ public class AlertPubSend extends AlertPub
 
     public EditText input;
     private Marker myMarker;
+    public String UserEmail;
 
     public AlertPubSend(Context connectedContext, String strChannel, Marker myMarker) {
         super(connectedContext, strChannel);
@@ -45,6 +47,7 @@ public class AlertPubSend extends AlertPub
     @Override
     public boolean onMarkerClick( Marker marker ) {
         this.strChannel = marker.getTitle() + "-chat";
+        this.UserEmail = marker.getTitle();
         //this.build_and_run_alert();
         this.showUserPopup();
         // TODO: Interaction Menu should be here?
@@ -92,7 +95,23 @@ public class AlertPubSend extends AlertPub
 
         //tell the Dialog to use the userview.xml as it's layout description
         dialog.setContentView(R.layout.userview);
-        //dialog.setTitle("Android Custom Dialog Box");
+        dialog.setTitle(this.UserEmail);
+
+        ImageView img = (ImageView) dialog.findViewById(R.id.imageView);
+        int my_image_id = R.drawable.usersample;
+        if (this.UserEmail.equals("test1@gmail.com")){
+            my_image_id = R.drawable.moshe;
+        }
+        if (this.UserEmail.equals("test2@gmail.com")){
+            my_image_id = R.drawable.noam;
+        }
+        if (this.UserEmail.equals("test3@gmail.com")){
+            my_image_id = R.drawable.nadia;
+        }
+        if (this.UserEmail.equals("test4@gmail.com")){
+            my_image_id = R.drawable.daniel;
+        }
+        img.setImageResource(my_image_id);
 
         Button exit_button = (Button) dialog.findViewById(R.id.exit_button);
         exit_button.setOnClickListener(new View.OnClickListener() {

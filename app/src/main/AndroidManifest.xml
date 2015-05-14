@@ -34,13 +34,17 @@
             android:value="AIzaSyBZxgG3Wzgxg34LsrG2wtPV4CcZRx615sY" />
 
         <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:name=".ChooseUserActivity"
+            android:label="SocialBridge" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MapsActivity"
+            android:label="@string/title_activity_maps" >
         </activity>
         <activity
             android:name=".ChatActivity"

@@ -69,20 +69,21 @@ public class MapsActivity extends FragmentActivity
     private Hashtable<String, MapObject> moObjects = new Hashtable<>();
     String MyEmail = "test1@gmail.com";
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        onCreateDialog();
+
         //ConnectToLocationServices();
         clGoogleClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        this.MyEmail = getIntent().getExtras().getString("email");
         setUpMapIfNeeded();
-
         setUpMapObjects();
+
+
     }
 
     @Override
@@ -179,6 +180,8 @@ public class MapsActivity extends FragmentActivity
                         // The 'which' argument contains the index position
                         // of the selected item
                         MyEmail = mymails[which];
+                        System.out.println(MyEmail);
+
                     }
                 });
         builder.show();

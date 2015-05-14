@@ -29,18 +29,6 @@
             android:id="@+id/send_message"
             android:layout_gravity="right|bottom" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="99dp"
-            android:text="Username"
-            android:id="@+id/textView"
-            android:layout_gravity="center_horizontal|top"
-            android:enabled="false"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:textIsSelectable="false"
-            android:textColor="@color/primary_dark_material_dark" />
-
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="30dp"
