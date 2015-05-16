@@ -96,7 +96,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
 
         String strEntityFormat = String.format(
                 "{\"user\"" +
-                        ":{\"name\":\"%s\"," +
+                        ":{\"user_name\":\"%s\"," +
                         "\"location_attributes\":" +
                         "{\"latitude\":%f," +
                         "\"longitude\":%f}}}",

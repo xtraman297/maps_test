@@ -38,11 +38,6 @@ public class PersonMapObject extends MapObject {
      */
     @Override
     public void run() {
-        // Only update position if they are different - Deleted to try and clean marker drawing
-        //if ((this.locUpdatedLocation.longitude != this.markUserMarker.getPosition().longitude) ||
-        //        (this.locUpdatedLocation.latitude != this.markUserMarker.getPosition().latitude)) {
-        //    this.markUserMarker.setPosition(this.locUpdatedLocation);
-        //}
     }
 
     /**

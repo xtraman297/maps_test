@@ -65,29 +65,6 @@ public class AlertPubSend extends AlertPub
         this.pubnub.publish(this.strChannel, value.toString(), this);
     }
 
-    public void build_and_run_alert(){
-        // Raise Exception if connectedContext is null
-        if(this.connectedContext == null) {
-            throw new NullPointerException();
-        }
-
-        this.alert = new AlertDialog.Builder(this.connectedContext);
-        this.input = new EditText(connectedContext);
-        this.alert.setTitle("Send message")
-                .setMessage("to:username")
-                .setView(input)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Canceled.
-                        // Why do we crash here?
-                        System.out.println("I shouldn't crash here but i do.. ?!");
-                    }
-                });
-
-        this.alert.setPositiveButton("Ok", this);
-        this.alert.show();
-    }
-
     public void showUserPopup(){
 
         // create a Dialog component

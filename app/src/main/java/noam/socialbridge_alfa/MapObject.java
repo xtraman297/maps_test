@@ -59,8 +59,6 @@ public abstract class MapObject extends Callback implements Runnable {
             this.pubStreamer =
                 new Pubnub(aiMetaData.metaData.get("pubnubAPI_publish").toString(),
                            aiMetaData.metaData.get("pubnubAPI_subscribe").toString());
-            //this.pubStreamer.time(this);
-
             try {
                 this.pubStreamer.subscribe(this.strUserEmail, this);
             }
@@ -76,7 +74,6 @@ public abstract class MapObject extends Callback implements Runnable {
 
         // Add the marker to the main map if its not null
         if (MapsActivity.mMap != null) {
-            //MapsActivity.mMap.setOnMapClickListener(this.markUserMarker);
             int my_image_id = R.drawable.usersample;
             if (strUserName.equals("test1@gmail.com")){
                 my_image_id = R.drawable.moshe;
@@ -99,19 +96,6 @@ public abstract class MapObject extends Callback implements Runnable {
                             .position(ltlngUserLocation)
                             .title(strUserName)
                             .icon(BitmapDescriptorFactory.fromBitmap(titleImage)));
-            //this.markUserMarker.showInfoWindow();
-//            MapsActivity.mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener() {
-//                @Override
-//                public boolean onMarkerClick( Marker marker ) {
-//                    //Noamisking
-//                    System.out.println("aaaaaaaaaaa");
-//                    //build_and_run_alert();
-//                    return true;
-//
-//                }
-//            });
-            //this.markUserMarker = MapsActivity.mMap
-            //        .addMarker(new MarkerOptions().position(ltlngUserLocation).title(strUserName));
         }
     }
 
@@ -133,12 +117,6 @@ public abstract class MapObject extends Callback implements Runnable {
     public void updatePosition(LatLng newLocation) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
-//        // Only update position if they are different
-//        if ((newLocation.longitude != this.markUserMarker.getPosition().longitude) ||
-//                (newLocation.latitude != this.markUserMarker.getPosition().latitude)) {
-//            this.markUserMarker.setPosition(newLocation);
-//        }
         this.locUpdatedLocation = newLocation;
         ((Activity)this.connectedContext).runOnUiThread(this);
     }

@@ -25,9 +25,6 @@ public class ChatActivity extends Activity {
     private Handler handler = new Handler();
     public ListView msgView;
     public ArrayAdapter<String> msgList;
-//	public ArrayAdapter<String> msgList=new ArrayAdapter<String>(this,
-//			android.R.layout.simple_list_item_1);;
-
 
     /**
      * Called when the activity is first created.
