@@ -27,23 +27,33 @@ import org.json.JSONObject;
 
 /**
  * Created by MrJellyB on 28/04/2015.
+ * This class is used to send messages to chat with pubnub interface.
+ * It listens to the markers on the map and trigger the alert message
  */
 public class AlertPubSend extends AlertPub
         implements GoogleMap.OnMarkerClickListener{
 
     public EditText input;
-    private Marker myMarker;
     public String UserEmail;
 
+    /**
+     * This constructor builds the alert object for publishing messages
+     * @param connectedContext - {@link android.content.Context} Context for accessing resources
+     * @param strChannel       - The pubnub channel to publish from
+     */
     public AlertPubSend(Context connectedContext, String strChannel, Marker myMarker) {
         super(connectedContext, strChannel);
-        this.myMarker = myMarker;
 
         if (MapsActivity.mMap != null) {
             MapsActivity.mMap.setOnMarkerClickListener(this);
         }
     }
 
+    /**
+     * The marker click handler
+     * @param marker - {@link com.google.android.gms.maps.model.Marker} The associated marker
+     * @return       - A boolean to continue or stop the flow
+     */
     @Override
     public boolean onMarkerClick( Marker marker ) {
         this.strChannel = marker.getTitle() + "-chat";
@@ -54,6 +64,11 @@ public class AlertPubSend extends AlertPub
         return true;
     }
 
+    /**
+     * This method is used for publishing the messages
+     * @param dialog - {@link DialogInterface} the dialog object
+     * @param which  - which button was clicked
+     */
     @Override
     public void onClick(DialogInterface dialog, int which) {
         // Exit method if input is null
@@ -65,6 +80,9 @@ public class AlertPubSend extends AlertPub
         this.pubnub.publish(this.strChannel, value.toString(), this);
     }
 
+    /**
+     * Show actions menu for the marker's user
+     */
     public void showUserPopup(){
 
         // create a Dialog component
@@ -119,6 +137,9 @@ public class AlertPubSend extends AlertPub
         dialog.show();
     }
 
+    /**
+     * The detail for the responding user (from marker click)
+     */
     public void showUserDetailsPopup(){
 
         // create a Dialog component
@@ -138,6 +159,10 @@ public class AlertPubSend extends AlertPub
 
         dialog.show();
     }
+
+    /**
+     * Show corresponding chat activity according to the marker that was clicked
+     */
     public void showChatPage(){
         Intent intent = new Intent();
         intent.setClass(this.connectedContext, ChatActivity.class);

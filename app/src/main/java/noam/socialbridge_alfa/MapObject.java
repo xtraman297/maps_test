@@ -45,6 +45,9 @@ public abstract class MapObject extends Callback implements Runnable {
      * {@link noam.socialbridge_alfa.PersonMapObject} and
      * {@link noam.socialbridge_alfa.UserMapObject} classes.
      * This is the base constructor, all other classes object are being created through here.
+     * @param strUserName       - The user name (nickname)
+     * @param ltlngUserLocation - {@link LatLng} The initial location of the user
+     * @param connectedContext  - {@link android.content.Context} Needed context to get resources
      */
     public MapObject(String strUserName, LatLng ltlngUserLocation, final Context connectedContext){
         this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
@@ -87,10 +90,14 @@ public abstract class MapObject extends Callback implements Runnable {
             if (strUserName.equals("test4@gmail.com")){
                 my_image_id = R.drawable.daniel;
             }
-            Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(), my_image_id);
-            Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(), R.drawable.usersample);
+            Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(),
+                                                            my_image_id);
+            Bitmap markerImage = BitmapFactory.decodeResource(connectedContext.getResources(),
+                                                              R.drawable.usersample);
             Bitmap myImage = ReturnMarkerWithImage.ReturnBitmap(userImage, markerImage);
-            Bitmap titleImage = ReturnMarkerWithImage.drawTextToBitmap(connectedContext, myImage, strUserName);
+            Bitmap titleImage = ReturnMarkerWithImage.drawTextToBitmap(connectedContext,
+                                                                       myImage,
+                                                                       strUserName);
             this.markUserMarker = MapsActivity.mMap
                     .addMarker(new MarkerOptions()
                             .position(ltlngUserLocation)
@@ -99,12 +106,28 @@ public abstract class MapObject extends Callback implements Runnable {
         }
     }
 
+    /**
+     * Abstract method for running actions on the map through the Main Thread
+     * (because android interface prohibits running action on maps through other the main threads,
+     * such as pubnub).
+     */
     @Override
     public abstract void run();
+
+    /**
+     * Callback method for logging connectivity from pubnub
+     * @param channel   - The channel of the message
+     * @param response  - The given info
+     */
     public void successCallback(String channel, Object response) {
         System.out.println(response.toString());
     }
 
+    /**
+     * Callback method for logging connectivity from pubnub
+     * @param channel   - The channel of the message
+     * @param error     - Description of the error that happened
+     */
     public void errorCallback(String channel, PubnubError error) {
         System.out.println(error.toString());
     }
@@ -112,12 +135,18 @@ public abstract class MapObject extends Callback implements Runnable {
     /**
      * Method for updating the user's position on the main map.
      * It sets the user's marker position by calling the main thread with {@code #runOnUiThread}
-     * @param newLocation  The new location to update.
+     * @param newLocation   - The new location to update.
      */
     public void updatePosition(LatLng newLocation) {
+        // Permit policy for all the threads
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         this.locUpdatedLocation = newLocation;
+
+        /**
+         * Run this action on main thread because android does not allow map manipulations
+         * from other threads than the main.
+         */
         ((Activity)this.connectedContext).runOnUiThread(this);
     }
 }

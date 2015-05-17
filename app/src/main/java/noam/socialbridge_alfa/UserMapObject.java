@@ -26,14 +26,25 @@ public class UserMapObject extends MapObject implements LocationListener {
     private static UserMapObject umoUser = null;
     private AlertPubGet alertGet;
 
-    private UserMapObject(Context connectedContext, String MyString) {
-        super(MyString, MapsActivity.getDeviceLocation(), connectedContext);
+    /**
+     * Private constructor for building singleton object for the current user on the map
+     * @param connectedContext  - {@link android.content.Context} For getting activity resources
+     * @param strMyEmail        - String that we use to save user's email
+     */
+    private UserMapObject(Context connectedContext, String strMyEmail) {
+        super(strMyEmail, MapsActivity.getDeviceLocation(), connectedContext);
         this.alertGet = new AlertPubGet(this.connectedContext, this.strUserEmail + "-chat");
     }
 
-    public static UserMapObject getUserObject(Context context, String MyString) {
+    /**
+     * Implement singleton principals. First time build and all the other calls get the same user
+     * @param context       - {@link android.content.Context} For getting resources from the activity
+     * @param strMyEmail    - String that we use to save user's email
+     * @return              - Return the user.
+     */
+    public static UserMapObject getUserObject(Context context, String strMyEmail) {
         if (UserMapObject.umoUser == null) {
-            UserMapObject.umoUser = new UserMapObject(context, MyString);
+            UserMapObject.umoUser = new UserMapObject(context, strMyEmail);
         }
 
         return (UserMapObject.umoUser);
@@ -44,6 +55,10 @@ public class UserMapObject extends MapObject implements LocationListener {
         // Only update position if they are different
     }
 
+    /**
+     * Update the current user's location
+     * @param newLocation   - The new location to update.
+     */
     @Override
     public void updatePosition(LatLng newLocation) {
         // Send to super class for update the position on the map
@@ -60,6 +75,10 @@ public class UserMapObject extends MapObject implements LocationListener {
         MapsActivity.animateMarker(this.markUserMarker, newLocation, false);
     }
 
+    /**
+     * Listen for location changes, update location and send pubnub publish
+     * @param location - The location that changed
+     */
     @Override
     public void onLocationChanged(final Location location) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();

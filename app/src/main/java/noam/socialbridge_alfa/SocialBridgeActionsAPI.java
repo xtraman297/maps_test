@@ -26,13 +26,24 @@ import java.util.Map;
  */
 public final class SocialBridgeActionsAPI extends FragmentActivity {
 
+    /**
+     * This generic method is responsible of handling all GET requests
+     * to the SB server (such as 'users', 'messages' and so)
+     * @param strAction - the action to get info from the server ('users', specific user)
+     * @param resources - necessary resources context to get the server and version values
+     *                    THIS IS REQUIRED
+     * @return - {@link JSONArray} array that contains all the returned info.
+     */
     public static JSONArray GetRequest(String strAction, Context resources) {
+        // Get necessary vars from the resources
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
+        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         HttpClient client = new DefaultHttpClient();
         HttpGet request = new HttpGet(serverIP + strAction);
-        request.addHeader("Accept", "application/vnd.SB-API.v2+json");
+        request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
         HttpResponse response;
         JSONArray json;
         json = null;
@@ -67,6 +78,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
      */
     public static void SendPutUpdate(String strAction, StringEntity params, Context resources){
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
+        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -74,6 +86,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         try {
             HttpPut request = new HttpPut(serverIP + strAction);
             request.addHeader("content-type", "application/json");
+            request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             String responseText = null;
@@ -90,9 +103,18 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         }
     }
 
-    public static void updateUserLocation(String strUserEmail, LatLng ltnLocation, Context connectedContext) {
-        strUserEmail = Uri.encode(strUserEmail.substring(0, strUserEmail.lastIndexOf('.'))) + "/" +
-                        strUserEmail.substring(strUserEmail.lastIndexOf('.') + 1);
+    /***
+     * Method to update user's position on the server
+     * @param strUserName - the name of the user (nickname)
+     * @param ltnLocation - {@link com.google.android.gms.maps.model.LatLng} the new location
+     * @param connectedContext - necessary resources context to get the server and version values
+     *                    THIS IS REQUIRED
+     */
+    public static void updateUserLocation(String strUserName,
+                                          LatLng ltnLocation,
+                                          Context connectedContext) {
+        strUserName = Uri.encode(strUserName.substring(0, strUserName.lastIndexOf('.'))) + "/" +
+                strUserName.substring(strUserName.lastIndexOf('.') + 1);
 
         String strEntityFormat = String.format(
                 "{\"user\"" +
@@ -100,7 +122,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
                         "\"location_attributes\":" +
                         "{\"latitude\":%f," +
                         "\"longitude\":%f}}}",
-                strUserEmail,
+                strUserName,
                 ltnLocation.latitude,
                 ltnLocation.longitude);
 
@@ -110,7 +132,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
             seToSend = new StringEntity(strEntityFormat);
 
             // Send the new position to the server
-            SocialBridgeActionsAPI.SendPutUpdate("user/update/" + strUserEmail,
+            SocialBridgeActionsAPI.SendPutUpdate("user/update/" + strUserName,
                     seToSend,
                     connectedContext);
         }
