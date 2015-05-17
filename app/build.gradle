@@ -20,7 +20,16 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.google.android.gms:play-services:6.5.87'
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile fileTree(dir: 'libs', include: '*.so')
+    //compile file('lib/*')
+    //compile file('lib/jersey-client.jar')
+    //compile file('lib/jersey-common.jar')
+    //compile file('lib/jersey-container-servlet.jar')
+    //compile file('lib/jersey-container-servlet-core.jar')
+    //compile file('lib/jersey-server.jar')
+    compile files('libs/Pubnub-Android-3.7.2.jar')
+    compile files('libs/bcprov-jdk15on-1.47.jar')
 }

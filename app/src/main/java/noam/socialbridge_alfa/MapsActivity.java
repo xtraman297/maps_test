@@ -1,29 +1,32 @@
 package noam.socialbridge_alfa;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Color;
+import android.graphics.Point;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.Location;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-//import com.google.android.gms.location
+import com.google.android.gms.maps.model.Marker;
+import java.util.Hashtable;
 
 public class MapsActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks,
@@ -34,22 +37,25 @@ public class MapsActivity extends FragmentActivity
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     // Bool to track whether the app is already resolving an error
     private boolean mResolvingError = false;
-    private CameraPosition cuMyInitPos;
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private GoogleApiClient clGoogleClient;
+    public static GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private static GoogleApiClient clGoogleClient;
 
-    @Override
+    private Hashtable<String, MapObject> moObjects = new Hashtable<>();
+    String MyEmail = "test1@gmail.com";
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        //ConnectToLocationServices();
         clGoogleClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        this.MyEmail = getIntent().getExtras().getString("email");
         setUpMapIfNeeded();
+        setUpMapObjects();
+
+
     }
 
     @Override
@@ -58,13 +64,13 @@ public class MapsActivity extends FragmentActivity
 
         // Check for resolution when there are connection error
         if (!this.mResolvingError) {
-            this.clGoogleClient.connect();
+            MapsActivity.clGoogleClient.connect();
         }
     }
 
     @Override
     protected void onStop() {
-        this.clGoogleClient.disconnect();
+        MapsActivity.clGoogleClient.disconnect();
         super.onStop();
     }
 
@@ -76,8 +82,8 @@ public class MapsActivity extends FragmentActivity
 
             if (resultCode == RESULT_OK) {
                 // Avoid when the app is connecting
-                if (!this.clGoogleClient.isConnecting() &&
-                        !this.clGoogleClient.isConnected()) {
+                if (!MapsActivity.clGoogleClient.isConnecting() &&
+                        !MapsActivity.clGoogleClient.isConnected()) {
                     clGoogleClient.connect();
                 }
             }
@@ -92,26 +98,16 @@ public class MapsActivity extends FragmentActivity
     @Override
     public void onConnected(Bundle bundle) {
         setUpMapIfNeeded();
-        this.mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("MyPos"));
-        LatLng Moshe_Test = new LatLng(getDeviceLocation().latitude + 0.002,getDeviceLocation().longitude + 0.002);
-        this.mMap.addMarker(new MarkerOptions().position(getDeviceLocation())
-                .title("MyPos")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.noam)));
-
-        mMap.addMarker(new MarkerOptions().position(Moshe_Test).title("Fuck"));
-        this.cuMyInitPos = new CameraPosition.Builder().target(getDeviceLocation())
+        CameraPosition cuMyInitPos = new CameraPosition.Builder().target(getDeviceLocation())
                 .zoom(15.5f)
                 .build();
-        this.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyInitPos));
-
+        MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyInitPos));
         //this creates the location manager and listener
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, locationListener);
-        mMap.addCircle(new CircleOptions()
-                .center(getDeviceLocation())
-                .radius(400)
-                .strokeColor(Color.RED)
-                .fillColor(Color.argb(30,60,50,40)));
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                  5,
+                                  5,
+                                  (UserMapObject.getUserObject(this, this.MyEmail)));
     }
 
     @Override
@@ -127,9 +123,7 @@ public class MapsActivity extends FragmentActivity
         // More about this in the next section.
 
         // Kick out if there is resolution currently going
-        if (this.mResolvingError) {
-            return;
-        } else if (result.hasResolution()) {
+       if (result.hasResolution()) {
             try {
                 this.mResolvingError = true;
                 result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
@@ -137,7 +131,7 @@ public class MapsActivity extends FragmentActivity
             // This may be with errors
             catch (IntentSender.SendIntentException exception) {
                 // Try again to connect
-                this.clGoogleClient.connect();
+                MapsActivity.clGoogleClient.connect();
             }
         }
         // Resolution failed
@@ -150,6 +144,33 @@ public class MapsActivity extends FragmentActivity
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    /**
+     * Sets, and puts all map objects that are given from the sever
+     */
+    private void setUpMapObjects() {
+        moObjects.clear();
+        JSONArray jsonAllUsers = SocialBridgeActionsAPI.GetRequest("user", this);
+
+        // Iterate over all the users from the server and add them to the hash table
+        for (int nUser = 0; nUser < jsonAllUsers.length(); nUser++) {
+            try {
+                JSONObject joCurr = ((JSONObject)jsonAllUsers.get(nUser));
+
+                moObjects.put(joCurr.get("user_name").toString(),
+                              new PersonMapObject(joCurr.get("email").toString(),
+                                                  new LatLng((double)((JSONObject)joCurr
+                                                                .get("location")).get("latitude"),
+                                                             (double)((JSONObject)joCurr
+                                                                .get("location")).get("longitude")),
+                              this));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        moObjects.put("me", UserMapObject.getUserObject(this, this.MyEmail));
     }
 
     /**
@@ -172,11 +193,10 @@ public class MapsActivity extends FragmentActivity
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-//                    .newInstance(new GoogleMapOptions().zoomGesturesEnabled(false)).getMap();
                     .getMap();
 
             // Add more map options
-            mMap.getUiSettings().setZoomGesturesEnabled(false);
+            mMap.getUiSettings().setZoomGesturesEnabled(true);
 
             // Add more basic attributes to the main map
 //            mMap
@@ -205,41 +225,56 @@ public class MapsActivity extends FragmentActivity
      */
     private void setUpMap() {
         // Act only if connected to Maps and location API
-        if (this.clGoogleClient.isConnected()) {
-            mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("My1Pos"));
+        if (MapsActivity.clGoogleClient.isConnected()) {
+            //mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("My1Pos"));
         }
     }
 
-    private LatLng getDeviceLocation() {
-        return new LatLng(
-                (LocationServices.FusedLocationApi.getLastLocation(this.clGoogleClient)).getLatitude(),
-                (LocationServices.FusedLocationApi.getLastLocation(this.clGoogleClient)).getLongitude());
+    public static LatLng getDeviceLocation() {
+        Location locCurrentLocation = (LocationServices
+                                        .FusedLocationApi
+                                        .getLastLocation(MapsActivity.clGoogleClient));
+        if(locCurrentLocation != null) {
+            return new LatLng(locCurrentLocation.getLatitude(), locCurrentLocation.getLongitude());
+        }
+        else {
+            return new LatLng(0,0);
+        }
     }
+    public static void animateMarker(final Marker marker, final LatLng toPosition,
+                              final boolean hideMarker) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = mMap.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
 
-    public final LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //here we should delete the older markers
-            //This will happen for every change
-            mMap.addMarker(new MarkerOptions().position(getDeviceLocation()).title("MyPos2"));
-        }
+        final Interpolator interpolator = new LinearInterpolator();
 
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            // TODO Auto-generated method stub
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
 
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            // TODO Auto-generated method stub
-
-        }
-    };
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                }
+            }
+        });
+    }
 }

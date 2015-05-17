@@ -21,21 +21,34 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
+            android:name="pubnubAPI_publish"
+            android:value="pub-c-033a7758-3b73-4810-9c1e-8cadb1f5d83a" />
+        <meta-data
+            android:name="pubnubAPI_subscribe"
+            android:value="sub-c-c96a15ae-b3a5-11e4-8ec7-0619f8945a4f" />
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyBZxgG3Wzgxg34LsrG2wtPV4CcZRx615sY" />
+
+        <activity
+            android:name=".ChooseUserActivity"
+            android:label="SocialBridge" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ChatActivity"
+            android:label="test">
         </activity>
     </application>
-
 </manifest>

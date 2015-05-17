@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <FrameLayout
+        android:layout_width="263dp"
+        android:layout_height="137dp"
+        android:layout_weight="0.28">
+
+        <ImageView
+            android:layout_width="83dp"
+            android:layout_height="83dp"
+            android:id="@+id/imageView"
+            android:layout_gravity="left|top"
+            android:src="@drawable/noam" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="99dp"
+            android:text="Username"
+            android:id="@+id/textView"
+            android:layout_gravity="center_horizontal|top"
+            android:enabled="false"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:textIsSelectable="false"
+            android:textColor="@color/primary_dark_material_dark" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="30dp"
+            android:layout_height="37dp"
+            android:text="X"
+            android:id="@+id/exit_button"
+            android:layout_gravity="right|top" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Something"
+            android:id="@+id/textView3"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="MyDetails"
+            android:id="@+id/textView2"
+            android:layout_gravity="left|center_vertical" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Noam"
+            android:id="@+id/textView4"
+            android:layout_gravity="left|bottom" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Something"
+            android:id="@+id/textView5"
+            android:layout_gravity="center_horizontal|bottom" />
+    </FrameLayout>
+
+</LinearLayout>
