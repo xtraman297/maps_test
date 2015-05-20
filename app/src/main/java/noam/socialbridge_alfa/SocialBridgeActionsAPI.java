@@ -8,8 +8,10 @@ import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -98,6 +100,43 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         }catch (Exception ex) {
             // handle exception here
             ex.printStackTrace();
+        } finally {
+            httpClient.getConnectionManager().shutdown();
+        }
+    }
+
+
+    public static void SendPostMessage(String strAction, String myMsg, Context resources){
+        String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
+        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String strEntityFormat =
+                String.format("{\"message\":{\n" +
+                        "\"body\": \"%s\",\n" +
+                        "\"to_user_id\": 1,\n" +
+                        "\"from_user_id\": 2\n" +
+                        "}}", myMsg);
+
+        StringEntity seToSend;
+        try {
+            seToSend = new StringEntity(strEntityFormat);
+            HttpPost request = new HttpPost(serverIP + strAction);
+
+            //StringEntity params =new StringEntity("details={\"name\":\"myname\",\"age\":\"20\"} ");
+            request.addHeader("content-type", "application/json");
+            request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
+            request.setEntity(seToSend);
+            HttpResponse response = httpClient.execute(request);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
