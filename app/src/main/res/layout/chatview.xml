@@ -22,7 +22,6 @@
             android:id="@+id/txt_inputText"
             android:layout_width="125px"
             android:layout_height="wrap_content"
-            android:text = "Text here"
             android:layout_weight="0.8"
             />
         <Button

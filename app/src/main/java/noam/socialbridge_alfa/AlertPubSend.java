@@ -165,6 +165,8 @@ public class AlertPubSend extends AlertPub
      */
     public void showChatPage(){
         Intent intent = new Intent();
+        intent.putExtra("myUsername", "aa");
+        intent.putExtra("remoteUsername", "bb");
         intent.setClass(this.connectedContext, ChatActivity.class);
         this.connectedContext.startActivity(intent);
     }
