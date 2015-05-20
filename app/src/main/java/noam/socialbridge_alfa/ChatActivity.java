@@ -33,7 +33,8 @@ public class ChatActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatview);
-
+        String[] conversationTemp = { "Hi,", "Hi to you too, how are you?", "I'm fine, how are you", "I'm ok :)" };
+        displayAllMessages(conversationTemp);
         msgView = (ListView) findViewById(R.id.listView);
 
         msgList = new ArrayAdapter<String>(this,
@@ -44,7 +45,7 @@ public class ChatActivity extends Activity {
 
         Button btnSend = (Button) findViewById(R.id.btn_Send);
 
-        receiveMsg();
+        //receiveMsg("");
         btnSend.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -52,9 +53,10 @@ public class ChatActivity extends Activity {
                 // TODO Auto-generated method stub
 
                 final EditText txtEdit = (EditText) findViewById(R.id.txt_inputText);
-                //msgList.add(txtEdit.getText().toString());
-                sendMessageToServer(txtEdit.getText().toString());
+                msgList.add(txtEdit.getText().toString());
+                sendMessageToServer(txtEdit.getText().toString(), "myemail", "hisemail");
                 msgView.smoothScrollToPosition(msgList.getCount() - 1);
+                txtEdit.setText("");
 
             }
         });
@@ -68,90 +70,25 @@ public class ChatActivity extends Activity {
         //End Receive msg from server//
     }
 
-    public void sendMessageToServer(String str) {
+    public void displayAllMessages(String myConversation[]){
 
-        final String str1 = str;
-        new Thread(new Runnable() {
+        for( int i = 0; i < myConversation.length - 1; i++)
+        {
+            displayMsg(myConversation[i]);
+        }
+    }
 
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                //String host = "opuntia.cs.utep.edu";
-                String host = "10.0.2.2";
-                //String host2 = "127.0.0.1";
-                PrintWriter out;
-                try {
-                    Socket socket = new Socket(host, 8008);
-                    out = new PrintWriter(socket.getOutputStream());
+    public void sendMessageToServer(String str, String local_user, String remote_user) {
+        //Here we should send the message to the server
+        //We should use both local and remote user ids to identify the conversation
+        System.out.println(str);
 
-                    // out.println("hello");
-                    out.println(str1);
-                    Log.d("", "hello");
-                    out.flush();
-                } catch (UnknownHostException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    Log.d("", "hello222");
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    Log.d("", "hello4333");
-                }
-
-            }
-        }).start();
     }
 
 
-    public void receiveMsg() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-
-                //final  String host="opuntia.cs.utep.edu";
-                final String host = "10.0.2.2";
-                //final String host="localhost";
-                Socket socket = null;
-                BufferedReader in = null;
-                try {
-                    socket = new Socket(host, 8008);
-                } catch (UnknownHostException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                try {
-                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                while (true) {
-                    String msg = null;
-                    try {
-                        msg = in.readLine();
-                        Log.d("", "MSGGG:  " + msg);
-
-                        //msgList.add(msg);
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    if (msg == null) {
-                        break;
-                    } else {
-                        displayMsg(msg);
-                    }
-                }
-
-            }
-        }).start();
-
+    public void receiveMsg(String msg) {
+        // This function should be called when receiving the message from PubNub,?
+        displayMsg(msg);
 
     }
 
