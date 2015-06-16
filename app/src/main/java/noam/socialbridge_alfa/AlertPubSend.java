@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,19 +35,32 @@ public class AlertPubSend extends AlertPub
         implements GoogleMap.OnMarkerClickListener{
 
     public EditText input;
-    public String UserEmail;
+    public String strUserOrigin;
+    public String strUserRemote;
 
     /**
      * This constructor builds the alert object for publishing messages
      * @param connectedContext - {@link android.content.Context} Context for accessing resources
-     * @param strChannel       - The pubnub channel to publish from
+     * @param strUserOrigin    - The pubnub channel to publish from
      */
-    public AlertPubSend(Context connectedContext, String strChannel, Marker myMarker) {
-        super(connectedContext, strChannel);
+    public AlertPubSend(Context connectedContext, String strUserOrigin, Marker myMarker) {
+        super(connectedContext, "");
+        this.strUserOrigin = strUserOrigin;
 
         if (MapsActivity.mMap != null) {
             MapsActivity.mMap.setOnMarkerClickListener(this);
         }
+    }
+
+    /**
+     * This constructor builds the alert object for publishing messages
+     * @param connectedContext - {@link android.content.Context} Context for accessing resources
+     * @param strTo            - the sending user
+     * @param strFrom          - the receiving user
+     */
+    public AlertPubSend(Context connectedContext, String strTo, String strFrom, Marker myMarker) {
+        this(connectedContext, strTo + "-" + strFrom + "-chat", myMarker);
+        this.strUserOrigin = strFrom;
     }
 
     /**
@@ -57,10 +71,11 @@ public class AlertPubSend extends AlertPub
     @Override
     public boolean onMarkerClick( Marker marker ) {
         this.strChannel = marker.getTitle() + "-chat";
-        this.UserEmail = marker.getTitle();
+//        this.strChannel = this.strUserOrigin + "-" + marker.getTitle() + "-chat";
+        this.strUserRemote = marker.getTitle();
         //this.build_and_run_alert();
-        this.showUserPopup();
-        // TODO: Interaction Menu should be here?
+        // TODO: change back to {@link noam.socialbridge_alfa.PersonMapObject}
+        this.showUserPopup((UserMapObject)MapsActivity.moObjects.get(marker));
         return true;
     }
 
@@ -83,27 +98,27 @@ public class AlertPubSend extends AlertPub
     /**
      * Show actions menu for the marker's user
      */
-    public void showUserPopup(){
+    public void showUserPopup(final UserMapObject moTo){
 
         // create a Dialog component
         final Dialog dialog = new Dialog(this.connectedContext);
 
         //tell the Dialog to use the userview.xml as it's layout description
         dialog.setContentView(R.layout.userview);
-        dialog.setTitle(this.UserEmail);
+        dialog.setTitle(this.strUserRemote);
 
         ImageView img = (ImageView) dialog.findViewById(R.id.imageView);
         int my_image_id = R.drawable.usersample;
-        if (this.UserEmail.equals("test1@gmail.com")){
+        if (this.strUserRemote.equals("test1@gmail.com")){
             my_image_id = R.drawable.moshe;
         }
-        if (this.UserEmail.equals("test2@gmail.com")){
+        if (this.strUserRemote.equals("test2@gmail.com")){
             my_image_id = R.drawable.noam;
         }
-        if (this.UserEmail.equals("test3@gmail.com")){
+        if (this.strUserRemote.equals("test3@gmail.com")){
             my_image_id = R.drawable.nadia;
         }
-        if (this.UserEmail.equals("test4@gmail.com")){
+        if (this.strUserRemote.equals("test4@gmail.com")){
             my_image_id = R.drawable.daniel;
         }
         img.setImageResource(my_image_id);
@@ -121,7 +136,7 @@ public class AlertPubSend extends AlertPub
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                showChatPage();
+                showChatPage(moTo);
                 //build_and_run_alert();
             }
         });
@@ -163,10 +178,12 @@ public class AlertPubSend extends AlertPub
     /**
      * Show corresponding chat activity according to the marker that was clicked
      */
-    public void showChatPage(){
+    public void showChatPage(UserMapObject moTo){
+
         Intent intent = new Intent();
-        intent.putExtra("myUsername", "aa");
-        intent.putExtra("remoteUsername", "bb");
+        intent.putExtra("myUsername", this.strUserOrigin);
+        intent.putExtra("remoteUsername", moTo.strUserName);
+        intent.putExtra("pubnub_channel", this.strChannel);
         intent.setClass(this.connectedContext, ChatActivity.class);
         this.connectedContext.startActivity(intent);
     }

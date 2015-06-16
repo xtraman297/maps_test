@@ -1,6 +1,9 @@
 package noam.socialbridge_alfa;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -13,7 +16,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
 
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -38,6 +45,7 @@ public class ChatActivity extends ActionBarActivity {
     public ArrayAdapter<String> msgList;
     private ChatAdapter adapter;
     private ArrayList<ChatMessage> chatHistory;
+    private Pubnub pubPublisher;
 
     /**
      * Called when the activity is first created.
@@ -46,26 +54,24 @@ public class ChatActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatview);
-
         msgView = (ListView) findViewById(R.id.listView);
-
-
-        //loadMyHistory();
         adapter = new ChatAdapter(ChatActivity.this, new ArrayList<ChatMessage>());
         msgView.setAdapter(adapter);
         addMessagesHistory();
-
-        //String[] conversationTemp = { "Hi,", "Hi to you too, how are you?", "I'm fine, how are you", "I'm ok :)" };
-        //displayAllMessages(conversationTemp);
-
-
-        //msgList = new ArrayAdapter<String>(this,
-        //        android.R.layout.simple_list_item_1);
-        //msgView.setAdapter(msgList);
-
-//		msgView.smoothScrollToPosition(msgList.getCount() - 1);
-
         Button btnSend = (Button) findViewById(R.id.btn_Send);
+        ApplicationInfo aiMetaData;
+
+        try {
+            aiMetaData = getPackageManager()
+                    .getApplicationInfo(getPackageName(),
+                            PackageManager.GET_META_DATA);
+            this.pubPublisher =
+                    new Pubnub(aiMetaData.metaData.get("pubnubAPI_publish").toString(),
+                               aiMetaData.metaData.get("pubnubAPI_subscribe").toString());
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
 
         //receiveMsg("");
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -86,8 +92,19 @@ public class ChatActivity extends ActionBarActivity {
                     chatMessage.setMe(true);
 
                     txtEdit.setText("");
-                    updateMessage(messageText);
-                    displayMessage(chatMessage);
+
+                    // Get remote and local users emails and send the message
+                    try {
+                        sendMessage(
+                                messageText,
+                                getIntent().getExtras().getString("myUsername"),
+                                getIntent().getExtras().getString("remoteUsername"),
+                                getIntent().getExtras().getString("pubnub_channel")
+                                );
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                displayMessage(chatMessage);
                 }
                 /*
                 final EditText txtEdit = (EditText) findViewById(R.id.txt_inputText);
@@ -116,14 +133,51 @@ public class ChatActivity extends ActionBarActivity {
         }
     }
 
-    public void sendMessageToServer(String str, String local_user, String remote_user) {
+    /**
+     *
+     * @param strMessage    -
+     * @param local_user    -
+     * @param remote_user   -
+     * @param strChannel    -
+     * @throws UnsupportedEncodingException
+     */
+    public void sendMessage(String strMessage, String local_user, String remote_user, String strChannel)
+            throws UnsupportedEncodingException {
         //Here we should send the message to the server
         //We should use both local and remote user ids to identify the conversation
-        System.out.println(str);
+        System.out.println(strMessage);
+        StringEntity streMsg = new StringEntity(String.format(
+                "{" +
+                        "\"message\":" +
+                        "{" +
+                            "\"from_user_name\":\"%s\"," +
+                            "\"to_user_name\":\"%s\"," +
+                            "\"body\":\"%s\"" +
+                        "}" +
+                "}",
+                local_user,
+                remote_user,
+                strMessage
+        ));
 
-    }
-    public void updateMessage(String msg){
-        SocialBridgeActionsAPI.SendPostMessage("messages", msg, this);
+        // Save the message on the server
+        SocialBridgeActionsAPI.SendPostMessage("messages", streMsg, this);
+
+        // Send to other user through pubnub
+        this.pubPublisher.publish(
+                strChannel,
+                strMessage,
+                new Callback() {
+                    @Override
+                    public void successCallback(String channel, Object message) {
+                        super.successCallback(channel, message);
+
+//                        new AlertDialog.Builder(this.connectedContext)
+//                                .setMessage((String) message)
+//                                .setPositiveButton("OK", this);
+                    }
+                }
+        );
     }
 
     public void receiveMsg(String msg) {
@@ -181,33 +235,5 @@ public class ChatActivity extends ActionBarActivity {
         }
 
     }
-
-    private void loadMyHistory(){
-
-        chatHistory = new ArrayList<ChatMessage>();
-        ChatMessage msg = new ChatMessage();
-
-        msg.setId(1);
-        msg.setMe(false);
-        msg.setMessage("Hi");
-        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
-        chatHistory.add(msg);
-        ChatMessage msg1 = new ChatMessage();
-        msg1.setId(2);
-        msg1.setMe(false);
-        msg1.setMessage("How r u doing???");
-        msg1.setDate(DateFormat.getDateTimeInstance().format(new Date()));
-        chatHistory.add(msg1);
-
-        adapter = new ChatAdapter(ChatActivity.this, new ArrayList<ChatMessage>());
-        msgView.setAdapter(adapter);
-
-        for(int i=0; i<chatHistory.size(); i++) {
-            ChatMessage message = chatHistory.get(i);
-            displayMessage(message);
-        }
-
-    }
-
 }
 

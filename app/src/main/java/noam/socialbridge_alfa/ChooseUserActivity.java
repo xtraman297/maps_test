@@ -20,7 +20,7 @@ public class ChooseUserActivity extends Activity {
 
     public Dialog onCreateDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String[] users = {
+        final String[] users = {
                 "Moshe",
                 "Noam",
                 "Nadia",
@@ -38,7 +38,7 @@ public class ChooseUserActivity extends Activity {
                         // The 'which' argument contains the index position
                         // of the selected item
                         //MyEmail = mymails[which];
-                        startMapsActivity(mymails[which]);
+                        startMapsActivity(mymails[which], users[which]);
                         finish();
 
                     }
@@ -47,11 +47,12 @@ public class ChooseUserActivity extends Activity {
         return builder.create();
 
     }
-    public void startMapsActivity(String MyEmail){
+    public void startMapsActivity(String MyEmail, String MyUserName){
         Intent intent = new Intent();
 
         intent.setClass(this, MapsActivity.class);
         intent.putExtra("email", MyEmail);
+        intent.putExtra("userName", MyUserName);
         this.startActivity(intent);
     }
 }

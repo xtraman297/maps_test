@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.location.LocationManager;
 import android.location.Location;
+import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import org.json.JSONArray;
@@ -27,6 +28,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks,
@@ -40,7 +43,7 @@ public class MapsActivity extends FragmentActivity
     public static GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private static GoogleApiClient clGoogleClient;
 
-    private Hashtable<String, MapObject> moObjects = new Hashtable<>();
+    public static Hashtable<Marker, MapObject> moObjects = new Hashtable<>();
     String MyEmail = "test1@gmail.com";
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +54,16 @@ public class MapsActivity extends FragmentActivity
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        this.MyEmail = getIntent().getExtras().getString("email");
+        Globals.UserEmail = getIntent().getExtras().getString("email");
+        Globals.UserName = getIntent().getExtras().getString("userName");
         setUpMapIfNeeded();
         setUpMapObjects();
+        findViewById(R.id.map).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this, ChooseUserActivity.class));
+            }
+        });
 
 
     }
@@ -104,10 +114,14 @@ public class MapsActivity extends FragmentActivity
         MapsActivity.mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cuMyInitPos));
         //this creates the location manager and listener
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                  5,
-                                  5,
-                                  (UserMapObject.getUserObject(this, this.MyEmail)));
+        try {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                      5,
+                                      5,
+                                      (UserMapObject.getUserObject(this)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -147,6 +161,29 @@ public class MapsActivity extends FragmentActivity
     }
 
     /**
+     * Find the User Name according to his email,
+     * search in {@link MapsActivity} - moObjects
+     * @param strUserEmail
+     * @return
+     */
+    private String findUserName(String strUserEmail)
+    {
+        Iterator<Hashtable.Entry<Marker, MapObject>> itRunner = MapsActivity.moObjects.entrySet().iterator();
+
+        // itterate over all the map objects to find the user name
+        while (itRunner.hasNext()) {
+            Map.Entry<Marker, MapObject> entry = itRunner.next();
+
+            // Return the found entry
+            if (entry.getValue().strUserEmail == strUserEmail) {
+                return (entry.getValue().strUserName);
+            }
+        }
+
+        return (null);
+    }
+
+    /**
      * Sets, and puts all map objects that are given from the sever
      */
     private void setUpMapObjects() {
@@ -157,20 +194,28 @@ public class MapsActivity extends FragmentActivity
         for (int nUser = 0; nUser < jsonAllUsers.length(); nUser++) {
             try {
                 JSONObject joCurr = ((JSONObject)jsonAllUsers.get(nUser));
+                MapObject moCurr =  new PersonMapObject(
+                        joCurr.get("user_name").toString(),
+                        joCurr.get("email").toString(),
+                        new LatLng((double)((JSONObject)joCurr
+                                .get("location")).get("latitude"),
+                                (double)((JSONObject)joCurr
+                                        .get("location")).get("longitude")),
+                        this);
 
-                moObjects.put(joCurr.get("user_name").toString(),
-                              new PersonMapObject(joCurr.get("email").toString(),
-                                                  new LatLng((double)((JSONObject)joCurr
-                                                                .get("location")).get("latitude"),
-                                                             (double)((JSONObject)joCurr
-                                                                .get("location")).get("longitude")),
-                              this));
+                moObjects.put(moCurr.markUserMarker,moCurr);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        moObjects.put("me", UserMapObject.getUserObject(this, this.MyEmail));
+        MapObject moMe = null;
+        try {
+            moMe = UserMapObject.getUserObject(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        moObjects.put(moMe.markUserMarker, moMe);
     }
 
     /**

@@ -8,6 +8,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.widget.EditText;
@@ -33,12 +35,17 @@ import java.util.concurrent.Callable;
  */
 public abstract class MapObject extends Callback implements Runnable {
     // User protected members
+    protected String strUserName;
     protected String strUserEmail;
-    protected Marker markUserMarker;
+    public Marker markUserMarker;
     protected Pubnub pubStreamer;
     protected Context connectedContext;
     protected LatLng locUpdatedLocation;
     protected LocationThread thrThread;
+
+    // Constructors
+
+
 
     /**
      * The default constructor for: MapObject{@link noam.socialbridge_alfa.MapObject}
@@ -47,11 +54,16 @@ public abstract class MapObject extends Callback implements Runnable {
      * This is the base constructor, all other classes object are being created through here.
      * @param strUserName       - The user name (nickname)
      * @param ltlngUserLocation - {@link LatLng} The initial location of the user
+     * @param strUserEmail      - The user's email address
      * @param connectedContext  - {@link android.content.Context} Needed context to get resources
      */
-    public MapObject(String strUserName, LatLng ltlngUserLocation, final Context connectedContext){
+    public MapObject(String strUserName,
+                     String strUserEmail,
+                     LatLng ltlngUserLocation,
+                     final Context connectedContext){
         this.thrThread = new LocationThread(this, strUserName, ltlngUserLocation);
-        this.strUserEmail = strUserName;
+        this.strUserEmail = strUserEmail;
+        this.strUserName = strUserName;
         this.connectedContext = connectedContext;
 
         // Initialize pubnub dataMember with publish and subscribe keys
@@ -78,16 +90,16 @@ public abstract class MapObject extends Callback implements Runnable {
         // Add the marker to the main map if its not null
         if (MapsActivity.mMap != null) {
             int my_image_id = R.drawable.usersample;
-            if (strUserName.equals("test1@gmail.com")){
+            if (strUserEmail.equals("test1@gmail.com")){
                 my_image_id = R.drawable.moshe;
             }
-            if (strUserName.equals("test2@gmail.com")){
+            if (strUserEmail.equals("test2@gmail.com")){
                 my_image_id = R.drawable.noam;
             }
-            if (strUserName.equals("test3@gmail.com")){
+            if (strUserEmail.equals("test3@gmail.com")){
                 my_image_id = R.drawable.nadia;
             }
-            if (strUserName.equals("test4@gmail.com")){
+            if (strUserEmail.equals("test4@gmail.com")){
                 my_image_id = R.drawable.daniel;
             }
             Bitmap userImage = BitmapFactory.decodeResource(connectedContext.getResources(),
@@ -148,5 +160,10 @@ public abstract class MapObject extends Callback implements Runnable {
          * from other threads than the main.
          */
         ((Activity)this.connectedContext).runOnUiThread(this);
+    }
+
+    // Getters and Setters
+    public String getStrUserName() {
+        return strUserName;
     }
 }

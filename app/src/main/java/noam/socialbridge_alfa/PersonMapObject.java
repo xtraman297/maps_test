@@ -1,6 +1,8 @@
 package noam.socialbridge_alfa;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -19,8 +21,12 @@ import org.json.JSONObject;
 public class PersonMapObject extends MapObject {
     private AlertPubSend alertSend;
 
-    public PersonMapObject(String strUserName, LatLng latlngUserLocation, Context context) {
-        super(strUserName, latlngUserLocation, context);
+
+    public PersonMapObject(String strUserName,
+                           String strUserEmail,
+                           LatLng latlngUserLocation,
+                           Context context) {
+        super(strUserName, strUserEmail, latlngUserLocation, context);
 
         try {
             this.pubStreamer.subscribe("positionChange", this);
@@ -30,7 +36,7 @@ public class PersonMapObject extends MapObject {
             System.out.println(pe.getPubnubError().toString());
         }
 
-        this.alertSend = new AlertPubSend(context,this.strUserEmail + "-" + "chat", this.markUserMarker);
+        this.alertSend = new AlertPubSend(context,this.strUserName, this.markUserMarker);
     }
 
     /**
@@ -82,5 +88,4 @@ public class PersonMapObject extends MapObject {
         System.out.println("SUBSCRIBE : ERROR on channel " + channel
                 + " : " + error.toString());
     }
-
 }

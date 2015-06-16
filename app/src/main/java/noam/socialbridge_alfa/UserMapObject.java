@@ -2,6 +2,7 @@ package noam.socialbridge_alfa;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Parcel;
 import android.os.StrictMode;
 import android.os.Bundle;
 import android.location.LocationListener;
@@ -11,12 +12,16 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by MrJellyB on 13/03/2015.
@@ -31,9 +36,10 @@ public class UserMapObject extends MapObject implements LocationListener {
      * @param connectedContext  - {@link android.content.Context} For getting activity resources
      * @param strMyEmail        - String that we use to save user's email
      */
-    private UserMapObject(Context connectedContext, String strMyEmail) {
-        super(strMyEmail, MapsActivity.getDeviceLocation(), connectedContext);
-        this.alertGet = new AlertPubGet(this.connectedContext, this.strUserEmail + "-chat");
+    private UserMapObject(Context connectedContext, String strMyEmail, String strMyUserName) {
+        super(strMyUserName, strMyEmail, MapsActivity.getDeviceLocation(), connectedContext);
+
+        this.alertGet = new AlertPubGet(this.connectedContext, this.strUserName + "-chat");
     }
 
     /**
@@ -42,9 +48,14 @@ public class UserMapObject extends MapObject implements LocationListener {
      * @param strMyEmail    - String that we use to save user's email
      * @return              - Return the user.
      */
-    public static UserMapObject getUserObject(Context context, String strMyEmail) {
+    public static UserMapObject getUserObject(Context context) throws Exception{
+        // Dont continue if the right globals are not initialized
+        if (Globals.UserEmail == null || Globals.UserName == null) {
+            throw (new Exception("Globals is not initiated"));
+        }
+
         if (UserMapObject.umoUser == null) {
-            UserMapObject.umoUser = new UserMapObject(context, strMyEmail);
+            UserMapObject.umoUser = new UserMapObject(context, Globals.UserEmail, Globals.UserName);
         }
 
         return (UserMapObject.umoUser);
@@ -65,8 +76,8 @@ public class UserMapObject extends MapObject implements LocationListener {
         super.updatePosition(newLocation);
 
         SocialBridgeActionsAPI.updateUserLocation(this.strUserEmail,
-                                                  this.markUserMarker.getPosition(),
-                                                  this.connectedContext);
+                this.markUserMarker.getPosition(),
+                this.connectedContext);
 
         CameraPosition cuMyPos = new CameraPosition.Builder()
                 .target(newLocation)

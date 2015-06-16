@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,7 +107,7 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
     }
 
 
-    public static void SendPostMessage(String strAction, String myMsg, Context resources){
+    public static HttpResponse SendPostMessage(String strAction, StringEntity params, Context resources){
         String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
         String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
 
@@ -114,29 +115,24 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
         StrictMode.setThreadPolicy(policy);
         HttpClient httpClient = new DefaultHttpClient();
 
-        String strEntityFormat =
-                String.format("{\"message\":{\n" +
-                        "\"body\": \"%s\",\n" +
-                        "\"to_user_id\": 1,\n" +
-                        "\"from_user_id\": 2\n" +
-                        "}}", myMsg);
 
-        StringEntity seToSend;
         try {
-            seToSend = new StringEntity(strEntityFormat);
             HttpPost request = new HttpPost(serverIP + strAction);
 
             //StringEntity params =new StringEntity("details={\"name\":\"myname\",\"age\":\"20\"} ");
             request.addHeader("content-type", "application/json");
             request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
-            request.setEntity(seToSend);
-            HttpResponse response = httpClient.execute(request);
+            request.setEntity(params);
+            return(httpClient.execute(request));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return null;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
