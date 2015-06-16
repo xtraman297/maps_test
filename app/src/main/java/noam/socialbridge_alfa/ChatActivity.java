@@ -18,6 +18,7 @@ import android.widget.ListView;
 import com.google.android.gms.maps.model.LatLng;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubException;
 
 import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
@@ -68,6 +69,18 @@ public class ChatActivity extends ActionBarActivity {
             this.pubPublisher =
                     new Pubnub(aiMetaData.metaData.get("pubnubAPI_publish").toString(),
                                aiMetaData.metaData.get("pubnubAPI_subscribe").toString());
+
+            // Also subscribe for messages and display them
+            try {
+                this.pubPublisher.subscribe(Globals.UserName + "-chat",
+                                            new ChatMessage(this,
+                                                            "",
+                                                            (long)213,
+                                                            DateFormat.getDateTimeInstance().format(new Date()),
+                                                            false));
+            } catch (PubnubException e) {
+                e.printStackTrace();
+            }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -85,7 +98,7 @@ public class ChatActivity extends ActionBarActivity {
                         return;
                     }
 
-                    ChatMessage chatMessage = new ChatMessage();
+                    ChatMessage chatMessage = new ChatMessage(getBaseContext());
                     chatMessage.setId(122);//dummy
                     chatMessage.setMessage(messageText);
                     chatMessage.setDate(DateFormat.getDateTimeInstance().format(new Date()));
@@ -215,7 +228,7 @@ public class ChatActivity extends ActionBarActivity {
         for (int place = 0; place < jsonMyConversation.length(); place++) {
             try {
                 JSONObject joCurr = ((JSONObject)jsonMyConversation.get(place));
-                ChatMessage chatMessage = new ChatMessage();
+                ChatMessage chatMessage = new ChatMessage(this);
                 int msgId = Integer.parseInt(joCurr.get("id").toString());
                 System.out.println(msgId);
                 chatMessage.setId(msgId);//dummy

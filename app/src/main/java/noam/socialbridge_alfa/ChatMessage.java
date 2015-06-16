@@ -1,14 +1,37 @@
 package noam.socialbridge_alfa;
 
+import android.app.Activity;
+import android.content.Context;
+
+import com.pubnub.api.Callback;
+
 /**
  * Created by Technovibe on 17-04-2015.
  */
-public class ChatMessage {
+public class ChatMessage extends Callback implements Runnable {
     private long id;
     private boolean isMe;
     private String message;
     private Long userId;
     private String dateTime;
+    private Context connectedContext;
+
+    public ChatMessage(Context connectedContext) {
+        this.connectedContext = connectedContext;
+    }
+
+    public ChatMessage(Context connectedContext,
+                       String message,
+                       Long userId,
+                       String dateTime,
+                       boolean isMe) {
+        this(connectedContext);
+        this.message = message;
+        this.userId = userId;
+        this.dateTime = dateTime;
+        this.isMe = isMe;
+        this.id = 1;
+    }
 
     public long getId() {
         return id;
@@ -48,5 +71,17 @@ public class ChatMessage {
 
     public void setDate(String dateTime) {
         this.dateTime = dateTime;
+    }
+
+    @Override
+    public void successCallback(String channel, Object message) {
+        super.successCallback(channel, message);
+        this.message = message.toString();
+        ((Activity)this.connectedContext).runOnUiThread(this);
+    }
+
+    @Override
+    public void run() {
+        ((ChatActivity)this.connectedContext).displayMessage(this);
     }
 }

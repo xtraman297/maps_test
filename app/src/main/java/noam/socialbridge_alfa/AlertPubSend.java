@@ -74,8 +74,8 @@ public class AlertPubSend extends AlertPub
 //        this.strChannel = this.strUserOrigin + "-" + marker.getTitle() + "-chat";
         this.strUserRemote = marker.getTitle();
         //this.build_and_run_alert();
-        // TODO: change back to {@link noam.socialbridge_alfa.PersonMapObject}
-        this.showUserPopup((UserMapObject)MapsActivity.moObjects.get(marker));
+
+        this.showUserPopup((PersonMapObject)MapsActivity.moObjects.get(marker));
         return true;
     }
 
@@ -98,7 +98,7 @@ public class AlertPubSend extends AlertPub
     /**
      * Show actions menu for the marker's user
      */
-    public void showUserPopup(final UserMapObject moTo){
+    public void showUserPopup(final PersonMapObject moTo){
 
         // create a Dialog component
         final Dialog dialog = new Dialog(this.connectedContext);
@@ -178,7 +178,7 @@ public class AlertPubSend extends AlertPub
     /**
      * Show corresponding chat activity according to the marker that was clicked
      */
-    public void showChatPage(UserMapObject moTo){
+    public void showChatPage(PersonMapObject moTo){
 
         Intent intent = new Intent();
         intent.putExtra("myUsername", this.strUserOrigin);
