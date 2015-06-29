@@ -171,7 +171,7 @@ public class ChatActivity extends ActionBarActivity {
                 local_user,
                 remote_user,
                 strMessage
-        ));
+        ), "UTF-8");
 
         // Save the message on the server
         SocialBridgeActionsAPI.SendPostMessage("messages", streMsg, this);
@@ -236,10 +236,10 @@ public class ChatActivity extends ActionBarActivity {
                 System.out.println(joCurr.get("body").toString());
                 chatMessage.setDate(joCurr.get("created_at").toString());
                 if (joCurr.get("to_user_id").toString().equals("2")) {
-                    chatMessage.setMe(true);
+                    chatMessage.setMe(false);
                 }
                 else{
-                    chatMessage.setMe(false);
+                    chatMessage.setMe(true);
                 }
                 displayMessage(chatMessage);
             } catch (JSONException e) {
