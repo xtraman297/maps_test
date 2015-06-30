@@ -1,27 +1,25 @@
 package noam.socialbridge_alfa;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 /**
  * Created by MrJellyB on 13/03/2015.
@@ -39,14 +37,15 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
      */
     public static JSONArray GetRequest(String strAction, Context resources) {
         // Get necessary vars from the resources
-        String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
-        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
+        String strServerIP = resources.getResources().getString(R.string.ServerIP);
+        String strServerVer = resources.getResources().getString(R.string.ServerVer);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         HttpClient client = new DefaultHttpClient();
-        HttpGet request = new HttpGet(serverIP + strAction);
-        request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
+        HttpGet request = new HttpGet(strServerIP + strAction);
+        request.addHeader("Accept",
+                          "application/vnd.SB-API." + strServerVer + "+json");
         HttpResponse response;
         JSONArray json;
         json = null;
@@ -63,9 +62,11 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
                 e.printStackTrace();
             }
 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        }
+        catch (Exception e) {
             e.printStackTrace();
+            Log.e("ERROR:", e.toString());
+            return null;
         }
         return json;
     }
@@ -80,36 +81,40 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
      *                  within the application ({@link R}
      */
     public static void SendPutUpdate(String strAction, StringEntity params, Context resources){
-        String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
-        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
+        // Get necessary vars from the resources
+        String strServerIP = resources.getResources().getString(R.string.ServerIP);
+        String strServerVer = resources.getResources().getString(R.string.ServerVer);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         HttpClient httpClient = new DefaultHttpClient();
         try {
-            HttpPut request = new HttpPut(serverIP + strAction);
+            HttpPut request = new HttpPut(strServerIP + strAction);
             request.addHeader("content-type", "application/json");
-            request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
+            request.addHeader("Accept", "application/vnd.SB-API." + strServerVer + "+json");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             String responseText = null;
             responseText = EntityUtils.toString(response.getEntity());
-            System.out.println(serverIP + strAction);
+            System.out.println(strServerIP + strAction);
             System.out.println(responseText);
             System.out.println(request.getEntity());
             // handle response here...
-        }catch (Exception ex) {
-            // handle exception here
-            ex.printStackTrace();
-        } finally {
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e("ERROR:", e.toString());
+        }
+        finally {
             httpClient.getConnectionManager().shutdown();
         }
     }
 
 
     public static HttpResponse SendPostMessage(String strAction, StringEntity params, Context resources){
-        String serverIP = resources.getResources().getText(R.string.ServerIP).toString();
-        String serverVersion = resources.getResources().getText(R.string.ServerVer).toString();
+        // Get necessary vars from the resources
+        String strServerIP = resources.getResources().getString(R.string.ServerIP);
+        String strServerVer = resources.getResources().getString(R.string.ServerVer);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -117,23 +122,20 @@ public final class SocialBridgeActionsAPI extends FragmentActivity {
 
 
         try {
-            HttpPost request = new HttpPost(serverIP + strAction);
+            HttpPost request = new HttpPost(strServerIP + strAction);
 
             //StringEntity params =new StringEntity("details={\"name\":\"myname\",\"age\":\"20\"} ");
             request.addHeader("content-type", "application/json");
-            request.addHeader("Accept", "application/vnd.SB-API." + serverVersion + "+json");
+            request.addHeader("Accept", "application/vnd.SB-API." + strServerVer + "+json");
             request.setEntity(params);
             return(httpClient.execute(request));
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
+            Log.e("ERROR:", e.toString());
             return null;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
+        }
+        finally {
             httpClient.getConnectionManager().shutdown();
         }
     }

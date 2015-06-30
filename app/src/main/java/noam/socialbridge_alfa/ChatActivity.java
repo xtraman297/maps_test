@@ -46,7 +46,7 @@ public class ChatActivity extends ActionBarActivity {
     public ArrayAdapter<String> msgList;
     private ChatAdapter adapter;
     private ArrayList<ChatMessage> chatHistory;
-    private Pubnub pubPublisher;
+    private Pubnub pubTube;
 
     /**
      * Called when the activity is first created.
@@ -66,13 +66,13 @@ public class ChatActivity extends ActionBarActivity {
             aiMetaData = getPackageManager()
                     .getApplicationInfo(getPackageName(),
                             PackageManager.GET_META_DATA);
-            this.pubPublisher =
+            this.pubTube =
                     new Pubnub(aiMetaData.metaData.get("pubnubAPI_publish").toString(),
                                aiMetaData.metaData.get("pubnubAPI_subscribe").toString());
 
             // Also subscribe for messages and display them
             try {
-                this.pubPublisher.subscribe(Globals.UserName + "-chat",
+                this.pubTube.subscribe(Globals.UserName + "-chat",
                                             new ChatMessage(this,
                                                             "",
                                                             (long)213,
@@ -91,7 +91,6 @@ public class ChatActivity extends ActionBarActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                     final EditText txtEdit = (EditText) findViewById(R.id.txt_inputText);
                     String messageText = txtEdit.getText().toString();
                     if (TextUtils.isEmpty(messageText)) {
@@ -138,14 +137,6 @@ public class ChatActivity extends ActionBarActivity {
         //End Receive msg from server//
     }
 
-    public void displayAllMessages(String myConversation[]){
-
-        for( int i = 0; i < myConversation.length - 1; i++)
-        {
-            displayMsg(myConversation[i]);
-        }
-    }
-
     /**
      *
      * @param strMessage    -
@@ -171,13 +162,13 @@ public class ChatActivity extends ActionBarActivity {
                 local_user,
                 remote_user,
                 strMessage
-        ), "UTF-8");
+        ));
 
         // Save the message on the server
         SocialBridgeActionsAPI.SendPostMessage("messages", streMsg, this);
 
         // Send to other user through pubnub
-        this.pubPublisher.publish(
+        this.pubTube.publish(
                 strChannel,
                 strMessage,
                 new Callback() {
@@ -224,22 +215,27 @@ public class ChatActivity extends ActionBarActivity {
     }
 
     private void addMessagesHistory(){
-        JSONArray jsonMyConversation = SocialBridgeActionsAPI.GetRequest("messages", this);
+        // Set vars for request
+        // TODO: Make server return id
+        String strQuery = String.format("from_user_name=%s&to_user_name=%s",
+                                        Globals.UserName,
+                                        getIntent().getExtras().getString("remoteUsername"));
+        JSONArray jsonMyConversation =
+                SocialBridgeActionsAPI.GetRequest("messages?" + strQuery, this);
+
+        // For every message received from server, add it to the conversation
         for (int place = 0; place < jsonMyConversation.length(); place++) {
             try {
                 JSONObject joCurr = ((JSONObject)jsonMyConversation.get(place));
                 ChatMessage chatMessage = new ChatMessage(this);
-                int msgId = Integer.parseInt(joCurr.get("id").toString());
-                System.out.println(msgId);
-                chatMessage.setId(msgId);//dummy
                 chatMessage.setMessage(joCurr.get("body").toString());
                 System.out.println(joCurr.get("body").toString());
                 chatMessage.setDate(joCurr.get("created_at").toString());
-                if (joCurr.get("to_user_id").toString().equals("2")) {
-                    chatMessage.setMe(false);
+                if (((JSONObject)joCurr.get("to_user")).get("user_name").toString().equals(Globals.UserName)) {
+                    chatMessage.setMe(true);
                 }
                 else{
-                    chatMessage.setMe(true);
+                    chatMessage.setMe(false);
                 }
                 displayMessage(chatMessage);
             } catch (JSONException e) {

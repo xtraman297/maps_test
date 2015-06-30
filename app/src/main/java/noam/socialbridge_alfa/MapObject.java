@@ -45,8 +45,6 @@ public abstract class MapObject extends Callback implements Runnable {
 
     // Constructors
 
-
-
     /**
      * The default constructor for: MapObject{@link noam.socialbridge_alfa.MapObject}
      * {@link noam.socialbridge_alfa.PersonMapObject} and
