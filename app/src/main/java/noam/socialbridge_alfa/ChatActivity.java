@@ -167,7 +167,7 @@ public class ChatActivity extends ActionBarActivity {
                 local_user,
                 remote_user,
                 strMessage
-        ));
+        ), "UTF-8");
 
         // Save the message on the server
         SocialBridgeActionsAPI.SendPostMessage("messages", streMsg, this);

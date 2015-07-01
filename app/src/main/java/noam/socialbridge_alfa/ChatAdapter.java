@@ -11,11 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Node;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class ChatAdapter extends BaseAdapter {
@@ -48,7 +51,7 @@ public class ChatAdapter extends BaseAdapter {
     @Override
     public ChatMessage getItem(int position) {
         if (chatMessages != null) {
-            return ((ChatMessage)((java.util.TreeMap.Node)(chatMessages.entrySet().toArray()[position])).getValue());
+            return ((ChatMessage)((TreeMap.Entry)(chatMessages.entrySet().toArray()[position])).getValue());
         } else {
              return null;
         }
