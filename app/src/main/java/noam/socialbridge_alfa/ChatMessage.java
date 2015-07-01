@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.pubnub.api.Callback;
 
+import java.text.DateFormat;
+
 /**
  * Created by Technovibe on 17-04-2015.
  */

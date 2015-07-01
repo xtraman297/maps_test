@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -56,7 +57,11 @@ public class ChatActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatview);
         msgView = (ListView) findViewById(R.id.listView);
-        adapter = new ChatAdapter(ChatActivity.this, new ArrayList<ChatMessage>());
+        try {
+            adapter = new ChatAdapter(ChatActivity.this, new ArrayList<ChatMessage>());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         msgView.setAdapter(adapter);
         addMessagesHistory();
         Button btnSend = (Button) findViewById(R.id.btn_Send);
@@ -190,7 +195,12 @@ public class ChatActivity extends ActionBarActivity {
 
     }
     public void displayMessage(ChatMessage message) {
-        adapter.add(message);
+        try {
+            adapter.add(message);
+        } catch (ParseException e) {
+            Log.e("ERROR", e.toString());
+            e.printStackTrace();
+        }
         adapter.notifyDataSetChanged();
         scroll();
     }
@@ -216,17 +226,24 @@ public class ChatActivity extends ActionBarActivity {
 
     private void addMessagesHistory(){
         // Set vars for request
-        // TODO: Make server return id
         String strQuery = String.format("from_user_name=%s&to_user_name=%s",
                                         Globals.UserName,
                                         getIntent().getExtras().getString("remoteUsername"));
-        JSONArray jsonMyConversation =
+        JSONArray jsonConversationFromMe =
                 SocialBridgeActionsAPI.GetRequest("messages?" + strQuery, this);
 
+        strQuery = String.format("from_user_name=%s&to_user_name=%s",
+                getIntent().getExtras().getString("remoteUsername"),
+                Globals.UserName);
+        JSONArray jsonConversationToMe =
+                SocialBridgeActionsAPI.GetRequest("messages?" + strQuery, this);
+
+        JSONArray jsonConversation = Globals.joinArrays(jsonConversationFromMe, jsonConversationToMe);
+
         // For every message received from server, add it to the conversation
-        for (int place = 0; place < jsonMyConversation.length(); place++) {
+        for (int place = 0; place < jsonConversation.length(); place++) {
             try {
-                JSONObject joCurr = ((JSONObject)jsonMyConversation.get(place));
+                JSONObject joCurr = ((JSONObject)jsonConversation.get(place));
                 ChatMessage chatMessage = new ChatMessage(this);
                 chatMessage.setMessage(joCurr.get("body").toString());
                 System.out.println(joCurr.get("body").toString());

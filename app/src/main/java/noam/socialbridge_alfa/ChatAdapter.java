@@ -11,16 +11,29 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
 public class ChatAdapter extends BaseAdapter {
 
-    private final List<ChatMessage> chatMessages;
+//    private final List<ChatMessage> chatMessages;
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private TreeMap<Long, ChatMessage> chatMessages = new TreeMap<>();  // - This is a sorted map, that holds all the messages
+                                                                        //   Allways sorted by date (epoch format)
     private Activity context;
 
-    public ChatAdapter(Activity context, List<ChatMessage> chatMessages) {
+    public ChatAdapter(Activity context, List<ChatMessage> chatMessages) throws ParseException {
         this.context = context;
-        this.chatMessages = chatMessages;
+        TreeMap<Long, ChatMessage> tmMessages = new TreeMap<>();
+
+        for (ChatMessage cmItem : chatMessages) {
+            tmMessages.put(dateFormat.parse(cmItem.getDate()).getTime(), cmItem);
+        }
+        this.chatMessages = new TreeMap<>(tmMessages);
     }
 
     @Override
@@ -35,9 +48,9 @@ public class ChatAdapter extends BaseAdapter {
     @Override
     public ChatMessage getItem(int position) {
         if (chatMessages != null) {
-            return chatMessages.get(position);
+            return (ChatMessage)chatMessages.entrySet().toArray()[position];
         } else {
-            return null;
+             return null;
         }
     }
 
@@ -69,12 +82,16 @@ public class ChatAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void add(ChatMessage message) {
-        chatMessages.add(message);
+    public void add(ChatMessage message) throws ParseException {
+        chatMessages.put(dateFormat.parse(message.getDate()).getTime(), message);
     }
 
-    public void add(List<ChatMessage> messages) {
-        chatMessages.addAll(messages);
+    public void add(List<ChatMessage> messages) throws ParseException {
+
+        // Add each item to the messages map
+        for (ChatMessage cmItem : messages) {
+            chatMessages.put(dateFormat.parse(cmItem.getDate()).getTime(), cmItem);
+        }
     }
 
     private void setAlignment(ViewHolder holder, boolean isMe) {
