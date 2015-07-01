@@ -116,7 +116,7 @@ public class ChatActivity extends ActionBarActivity {
                     try {
                         sendMessage(
                                 messageText,
-                                getIntent().getExtras().getString("myUsername"),
+                                Globals.UserName,
                                 getIntent().getExtras().getString("remoteUsername"),
                                 getIntent().getExtras().getString("pubnub_channel")
                                 );
@@ -229,14 +229,17 @@ public class ChatActivity extends ActionBarActivity {
     private void addMessagesHistory(){
         // Set vars for request
         String strQuery = String.format("from_user_name=%s&to_user_name=%s",
-                                        Globals.UserName,
-                                        getIntent().getExtras().getString("remoteUsername"));
+
+                                        getIntent().getExtras().getString("remoteUsername"),
+                Globals.UserName);
         JSONArray jsonConversationFromMe =
                 SocialBridgeActionsAPI.GetRequest("messages?" + strQuery, this);
 
         strQuery = String.format("from_user_name=%s&to_user_name=%s",
-                getIntent().getExtras().getString("remoteUsername"),
-                Globals.UserName);
+                Globals.UserName,
+                getIntent().getExtras().getString("remoteUsername")
+                );
+        System.out.println(strQuery);
         JSONArray jsonConversationToMe =
                 SocialBridgeActionsAPI.GetRequest("messages?" + strQuery, this);
 
@@ -251,10 +254,10 @@ public class ChatActivity extends ActionBarActivity {
                 System.out.println(joCurr.get("body").toString());
                 chatMessage.setDate(joCurr.get("created_at").toString());
                 if (((JSONObject)joCurr.get("to_user")).get("user_name").toString().equals(Globals.UserName)) {
-                    chatMessage.setMe(true);
+                    chatMessage.setMe(false);
                 }
                 else{
-                    chatMessage.setMe(false);
+                    chatMessage.setMe(true);
                 }
                 displayMessage(chatMessage);
             } catch (JSONException e) {
