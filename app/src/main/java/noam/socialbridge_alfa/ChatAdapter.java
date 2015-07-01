@@ -48,7 +48,7 @@ public class ChatAdapter extends BaseAdapter {
     @Override
     public ChatMessage getItem(int position) {
         if (chatMessages != null) {
-            return (ChatMessage)chatMessages.entrySet().toArray()[position];
+            return ((ChatMessage)((java.util.TreeMap.Node)(chatMessages.entrySet().toArray()[position])).getValue());
         } else {
              return null;
         }
