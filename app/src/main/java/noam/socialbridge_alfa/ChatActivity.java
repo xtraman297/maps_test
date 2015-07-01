@@ -34,6 +34,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -105,7 +106,8 @@ public class ChatActivity extends ActionBarActivity {
                     ChatMessage chatMessage = new ChatMessage(getBaseContext());
                     chatMessage.setId(122);//dummy
                     chatMessage.setMessage(messageText);
-                    chatMessage.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+                    DateFormat dfFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    chatMessage.setDate(dfFormat.format(new Date()));
                     chatMessage.setMe(true);
 
                     txtEdit.setText("");
@@ -167,7 +169,7 @@ public class ChatActivity extends ActionBarActivity {
                 local_user,
                 remote_user,
                 strMessage
-        ));
+        ), "UTF-8");
 
         // Save the message on the server
         SocialBridgeActionsAPI.SendPostMessage("messages", streMsg, this);
